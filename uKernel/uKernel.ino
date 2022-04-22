@@ -17,6 +17,7 @@ unsigned int curr_task = NT + 1;
 int Sched_Add(Task* t) {
   const unsigned int prio = t->getPrio();
   if (!tasks[prio]) {
+    t->init();
     tasks[prio] = t;
     return prio;
   }
@@ -65,17 +66,17 @@ void handleISR(void) {
     Sched_Dispatch();
 }
 
-ISR(TIMER1_COMPA_vect) __attribute__((signal, naked));
+//ISR(TIMER1_COMPA_vect) __attribute__((signal, naked));
 
 ISR(TIMER1_COMPA_vect) {
     /* Macro that explicitly saves the execution context. */ 
-    SAVE_CONTEXT(); 
+    //SAVE_CONTEXT(); 
  
     // handle ISR
     handleISR();
  
     /* Macro that explicitly restores the execution context. */ 
-    RESTORE_CONTEXT(); 
+    //RESTORE_CONTEXT(); 
  
     /* The return from interrupt call must also the explicitly added. */ 
     asm volatile ( "reti" ); 

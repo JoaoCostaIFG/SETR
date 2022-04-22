@@ -1,5 +1,4 @@
-int pxCurrentTCB = 0;
-
+/*
 #define SAVE_CONTEXT()           \
   asm volatile (                 \
     "push  r0                    \n\t" \
@@ -89,3 +88,4 @@ int pxCurrentTCB = 0;
     "out  __SREG__, r0           \n\t" \
     "pop  r0                     \n\t" \
   ); 
+*/
