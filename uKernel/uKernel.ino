@@ -29,20 +29,21 @@ void Sched_Dispatch() {
 
     for (int i = 0; i < prev_task; ++i) {
         Task* t = tasks[i];
-        if (t && t->isReady()) {
-            t->setReady(false);
-            
-            // run task
-            curr_task = i;
-            interrupts();
-            t->run();
-            noInterrupts();
-            curr_task = prev_task;
+        if (!t || !t->isReady())
+            continue;
 
-            // delete one-shot
-            if (t->getPeriod() == 0) {
-                tasks[i] = NULL;
-            }
+        t->setReady(false);
+
+        // run task
+        curr_task = i;
+        interrupts();
+        t->run();
+        noInterrupts();
+        curr_task = prev_task;
+
+        // delete one-shot
+        if (t->getPeriod() == 0) {
+            tasks[i] = NULL;
         }
     }
 }
@@ -50,14 +51,15 @@ void Sched_Dispatch() {
 void Sched_Schedule() {
     for (int i = 0; i < NT; ++i ) {
         Task* t = tasks[i];
-        if (!t || !t->isReady())
+        if (!t || t->isReady()) // ready tasks are already scheduled
             continue;
 
         if (t->getDelay() == 0) {
             t->setReady(true);
-            t->setDelay(t->getPeriod() + 1);
+            t->setDelay(t->getPeriod());
+        } else {
+            t->setDelay(t->getDelay() - 1);
         }
-        t->setDelay(t->getDelay() - 1);
     }
 }
 
@@ -84,8 +86,8 @@ ISR(TIMER1_COMPA_vect) {
 
 void setup() {
   Sched_Add(&task1);
-  Sched_Add(&task2);
-  Sched_Add(&task3);
+  //Sched_Add(&task2);
+  //Sched_Add(&task3);
 
   noInterrupts(); // disable all interrupts
   TCCR1A = 0;
