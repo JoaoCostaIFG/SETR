@@ -1,8 +1,16 @@
 #ifndef TASK3_H
 #define TASK3_H
 
-void initTask3(void);
+#include "task.h"
 
-void task3(void);
+class Task3 : public Task {
+public:
+  Task3(unsigned int period, unsigned int timeDelay, unsigned int prio): Task(period, timeDelay, prio) {
+  }
+
+  void init(void);
+
+  void run(void);
+};
 
 #endif // TASK3_H

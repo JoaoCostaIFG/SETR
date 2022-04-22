@@ -1,43 +1,46 @@
+// vim:filetype=c:tw=80:et
 #include "task.h"
 #include "task1.h"
 #include "task2.h"
 #include "task3.h"
+#include "regs.h"
 
 #define NT 20
 
-Task tasks[NT];
+Task1 task1(10, 5, 0);
+Task2 task2(4, 0, 1);
+Task3 task3(1, 0, 2);
+
+Task* tasks[NT];
 unsigned int curr_task = NT + 1;
 
-int Sched_Add(unsigned int period, unsigned int delay, void (*func)(void), unsigned prio) {
-    if (!tasks[prio].func) {
-            tasks[prio] = {
-                period,
-                delay,
-                func,
-                (delay == 0)
-            };
-            return prio;
-    }
-    return -1;
+int Sched_Add(Task* t) {
+  const unsigned int prio = t->getPrio();
+  if (!tasks[prio]) {
+    tasks[prio] = t;
+    return prio;
+  }
+  return -1;
 }
 
 void Sched_Dispatch() {
     int prev_task = curr_task;
 
     for (int i = 0; i < prev_task; ++i) {
-        if (tasks[i].func && tasks[i].exec) {
-            tasks[i].exec = 0;
+        Task* t = tasks[i];
+        if (t && t->isReady()) {
+            t->setReady(false);
             
             // run task
             curr_task = i;
             interrupts();
-            tasks[i].func();
+            t->run();
             noInterrupts();
             curr_task = prev_task;
 
             // delete one-shot
-            if (tasks[i].period == 0) {
-                tasks[i].func = 0;
+            if (t->getPeriod() == 0) {
+                tasks[i] = NULL;
             }
         }
     }
@@ -45,29 +48,43 @@ void Sched_Dispatch() {
 
 void Sched_Schedule() {
     for (int i = 0; i < NT; ++i ) {
-        if (!tasks[i].func || tasks[i].exec)
+        Task* t = tasks[i];
+        if (!t || !t->isReady())
             continue;
 
-        if (tasks[i].delay == 0) {
-            tasks[i].exec = 1;
-            tasks[i].delay = tasks[i].period + 1;
+        if (t->getDelay() == 0) {
+            t->setReady(true);
+            t->setDelay(t->getPeriod() + 1);
         }
-        --tasks[i].delay;
+        t->setDelay(t->getDelay() - 1);
     }
 }
 
-ISR(TIMER1_COMPA_vect) {
+void handleISR(void) {
     Sched_Schedule();
     Sched_Dispatch();
 }
 
+ISR(TIMER1_COMPA_vect) __attribute__((signal, naked));
+
+ISR(TIMER1_COMPA_vect) {
+    /* Macro that explicitly saves the execution context. */ 
+    SAVE_CONTEXT(); 
+ 
+    // handle ISR
+    handleISR();
+ 
+    /* Macro that explicitly restores the execution context. */ 
+    RESTORE_CONTEXT(); 
+ 
+    /* The return from interrupt call must also the explicitly added. */ 
+    asm volatile ( "reti" ); 
+} 
+
 void setup() {
-  initTask1();
-  Sched_Add(10, 5, task1, 0);
-  initTask2();
-  Sched_Add(4,  0, task2, 1);
-  initTask3();
-  Sched_Add(1,  0, task3, 2);
+  Sched_Add(&task1);
+  Sched_Add(&task2);
+  Sched_Add(&task3);
 
   noInterrupts(); // disable all interrupts
   TCCR1A = 0;
