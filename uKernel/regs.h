@@ -1,4 +1,4 @@
-extern int pxCurrentTCB = 0;
+int pxCurrentTCB = 0;
 
 #define SAVE_CONTEXT()           \
   asm volatile (                 \
