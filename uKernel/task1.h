@@ -8,9 +8,9 @@ public:
   Task1(unsigned int period, unsigned int timeDelay, unsigned int prio): Task(period, timeDelay, prio) {
   }
 
-  void init(void);
+  void init() override;
 
-  void run(void);
+  void run() override;
 };
 
 #endif // TASK1_H

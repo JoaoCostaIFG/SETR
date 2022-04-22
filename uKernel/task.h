@@ -2,22 +2,22 @@
 #define TASK_H
 
 class Task {
-protected:
+private:
   const unsigned int period;
-  const unsigned int prio;
+  const int prio;
 
   unsigned int timeDelay;
   bool ready;
 
 public:
-  Task(unsigned int period, unsigned int timeDelay, unsigned int prio) : period(period), prio(prio) {
+  Task(unsigned int period, unsigned int timeDelay, int prio) : period(period), prio(prio) {
     this->timeDelay = timeDelay;
     this->ready = (timeDelay == 0);
   }
 
-  virtual void init(void) = 0;
+  virtual void init() = 0;
 
-  virtual void run(void) = 0;
+  virtual void run() = 0;
 
   unsigned int getPeriod() const {
     return this->period;
@@ -27,11 +27,16 @@ public:
     return this->timeDelay;
   }
 
-  void setDelay(unsigned int timeDelay) {
-    this->timeDelay = timeDelay;
+  void tick() {
+    if (this->timeDelay > 0)
+      --this->timeDelay;
   }
 
-  unsigned int getPrio() const {
+  void reset() {
+    this->timeDelay = this->period - 1;
+  }
+
+  int getPrio() const {
     return this->prio;
   }
 
