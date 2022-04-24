@@ -18,8 +18,8 @@ Task* tasks[NT]; // lower int => higher task priority
 volatile unsigned int curr_task = NT;
 
 // stacks
-byte initStack[100];
-volatile TCB_t* volatile pxCurrentTCB = initStack;
+byte baseStack[64]; // TODO is this needed?
+volatile TCB_t* volatile pxCurrentTCB = baseStack;
 
 void Sched_Init() {
   for (auto& task: tasks)
@@ -80,7 +80,7 @@ void Sched_Dispatch() {
   if (prev_task < NT && tasks[prev_task]) {
     pxCurrentTCB = &tasks[prev_task]->stack;
   } else {
-    pxCurrentTCB = initStack;
+    pxCurrentTCB = baseStack;
   }
 }
 
@@ -110,7 +110,7 @@ int Sched_Schedule() {
   return readyCnt;
 }
 
-//void handleISR() __attribute__(( hot, flatten, naked ));
+void handleISR() __attribute__(( hot, flatten, naked ));
 
 void handleISR() {
   /* explicitly save the execution context */
@@ -125,17 +125,16 @@ void handleISR() {
   portRESTORE_CONTEXT();
 
   // the return from function call must be explicitly added
-  //__asm__ __volatile__ ( "ret" );
+  __asm__ __volatile__ ( "ret" );
 }
 
-//ISR(portSCHEDULER_ISR, ISR_NAKED) __attribute__ ((hot, flatten));
-ISR(portSCHEDULER_ISR) __attribute__ ((signal));
+ISR(TIMER1_COMPA_vect, ISR_NAKED) __attribute__ ((hot, flatten));
 
 ISR(TIMER1_COMPA_vect) {
   handleISR();
 
   // the return from interrupt call must be explicitly added
-  //__asm__ __volatile__ ( "reti" );
+  __asm__ __volatile__ ( "reti" );
 }
 
 void setup() {
