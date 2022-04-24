@@ -3,13 +3,12 @@
 #include "task1.h"
 #include "task2.h"
 #include "task3.h"
-#include "regs.h"
 
 #define NT 20
 
-Task1 task1(10, 5, 1);
-//Task2 task2(4, 0, 1);
-Task3 task3(1, 0, 2);
+Task* task1 = new Task(&initTask1, &runTask1, 10, 5, 7);
+//Task2 task2(initTask2, runTask2, 4, 0, 1);
+Task* task3 = new Task(&initTask3, &runTask3, 1, 0, 2);
 
 Task* tasks[NT]; // lower int => higher task priority
 unsigned int curr_task = NT + 1;
@@ -34,7 +33,7 @@ void Sched_Init() {
 }
 
 int Sched_Add(Task* t) {
-  const int prio = t->getPrio();
+  const int prio = 0;//t->getPrio();
   if (!tasks[prio]) {
     t->init();
     tasks[prio] = t;
@@ -80,13 +79,13 @@ void Sched_Dispatch() {
 }
 
 void Sched_Schedule() {
-  Sched_Add(&task1);
   for (int i = 0; i < NT; ++i) {
     Task* t = tasks[i];
-    if (t && i == 0) {
-      task3.run();
-      delay(1000);
-    }
+    if (i != 0) continue;
+    task3->run();
+    delay(1000);
+    task3->run();
+    delay(1000);
   }
 
   /*
@@ -106,36 +105,22 @@ void Sched_Schedule() {
   */
 }
 
-void handleISR() {
-  Sched_Schedule();
+ISR(TIMER1_COMPA_vect) {
+  //Sched_Schedule();
   //Sched_Dispatch();
 }
 
-//ISR(TIMER1_COMPA_vect) __attribute__((signal, naked));
-
-ISR(TIMER1_COMPA_vect) {
-  /* Macro that explicitly saves the execution context. */
-  //SAVE_CONTEXT();
-
-  // handle ISR
-  handleISR();
-
-  /* Macro that explicitly restores the execution context. */
-  //RESTORE_CONTEXT();
-
-  /* The return from interrupt call must also the explicitly added. */
-  //asm volatile ( "reti" );
-}
-
 void setup() {
-  task3.init();
+  Sched_Init();
 
-  Sched_Add(&task1);
+  task3->init();
+
+  //Sched_Add(&task1);
+  task1->init();
+  tasks[0] = task1;
 
   //Sched_Add(&task2);
   //Sched_Add(&task3);
-
-  Sched_Init();
 }
 
 void loop() {
