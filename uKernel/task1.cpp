@@ -4,13 +4,13 @@
 
 #define LEDPIN 13
 
-void initTask1() {
+void Task1::init() {
   // set pin as output
   pinMode(LEDPIN, OUTPUT);
   digitalWrite(LEDPIN, HIGH);
 }
 
-void runTask1() {
+void Task1::run() {
   digitalWrite(LEDPIN, !digitalRead(LEDPIN));
-  //delay(1000);
+  delay(700);
 }

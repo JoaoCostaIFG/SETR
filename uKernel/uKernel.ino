@@ -6,15 +6,15 @@
 
 #define NT 20
 
-Task* task1 = new Task(&initTask1, &runTask1, 10, 5, 7);
-//Task2 task2(initTask2, runTask2, 4, 0, 1);
-Task* task3 = new Task(&initTask3, &runTask3, 1, 0, 2);
+static Task* task1 = new Task1(2, 1, 0);
+static Task* task2 = new Task2(1, 0, 1);
+static Task* task3 = new Task3(1, 0, 2);
 
 Task* tasks[NT]; // lower int => higher task priority
 unsigned int curr_task = NT + 1;
 
 void Sched_Init() {
-  for (auto & task : tasks)
+  for (auto& task: tasks)
     task = nullptr;
 
   /* configure time */
@@ -33,7 +33,7 @@ void Sched_Init() {
 }
 
 int Sched_Add(Task* t) {
-  const int prio = 0;//t->getPrio();
+  int prio = t->getPrio();
   if (!tasks[prio]) {
     t->init();
     tasks[prio] = t;
@@ -43,7 +43,6 @@ int Sched_Add(Task* t) {
 }
 
 void Sched_Dispatch() {
-  /*
   unsigned int prev_task = curr_task;
 
   for (unsigned int i = 0; i < prev_task; ++i) {
@@ -65,30 +64,9 @@ void Sched_Dispatch() {
       tasks[i] = nullptr;
     }
   }
-  */
-
-  //for (int i = 0; i < NT; ++i) {
-  //  Task* t = tasks[i];
-  //  if (t == nullptr)
-  //    continue;
-
-  //  if (t->isReady() && i == 0) {
-  //    t->setReady(false);
-  //  }
-  //}
 }
 
 void Sched_Schedule() {
-  for (int i = 0; i < NT; ++i) {
-    Task* t = tasks[i];
-    if (i != 0) continue;
-    task3->run();
-    delay(1000);
-    task3->run();
-    delay(1000);
-  }
-
-  /*
   for (int i = 0; i < NT; ++i) {
     Task* t = tasks[i];
 
@@ -102,25 +80,21 @@ void Sched_Schedule() {
       t->reset();
     }
   }
-  */
 }
 
 ISR(TIMER1_COMPA_vect) {
-  //Sched_Schedule();
-  //Sched_Dispatch();
+  Sched_Schedule();
+  Sched_Dispatch();
 }
 
 void setup() {
+  //__asm__ __volatile__ ("" : : "m" (task1));
+
   Sched_Init();
 
-  task3->init();
-
-  //Sched_Add(&task1);
-  task1->init();
-  tasks[0] = task1;
-
-  //Sched_Add(&task2);
-  //Sched_Add(&task3);
+  Sched_Add(task1);
+  Sched_Add(task2);
+  Sched_Add(task3);
 }
 
 void loop() {

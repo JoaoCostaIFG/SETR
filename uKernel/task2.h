@@ -1,8 +1,16 @@
 #ifndef TASK2_H
 #define TASK2_H
 
-void initTask2();
+#include "task.h"
 
-void runTask2();
+class Task2 : public Task {
+public:
+  Task2(unsigned int period, unsigned int timeDelay, int prio) :
+      Task(period, timeDelay, prio) {}
+
+  void init() override;
+
+  void run() override;
+};
 
 #endif // TASK2_H

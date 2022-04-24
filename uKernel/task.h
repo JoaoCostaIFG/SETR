@@ -3,10 +3,6 @@
 
 class Task {
 private:
-  void (* initFunc)();
-
-  void (* runFunc)();
-
   const unsigned int period;
   const int prio;
 
@@ -14,21 +10,15 @@ private:
   bool ready;
 
 public:
-  Task(void (* initFunc)(), void (* runFunc)(), unsigned int period, unsigned int timeDelay, int prio) :
-      initFunc(initFunc), runFunc(runFunc), period(period), prio(prio) {
+  Task(unsigned int period, unsigned int timeDelay, int prio) :
+      period(period), prio(prio) {
     this->timeDelay = timeDelay;
     this->ready = (timeDelay == 0);
   }
 
-  Task() : Task(nullptr, nullptr, 0, 0, 0) {}
+  virtual void init() = 0;
 
-  virtual void init() {
-    this->initFunc();
-  }
-
-  virtual void run() {
-    this->runFunc();
-  }
+  virtual void run() = 0;
 
   unsigned int getPeriod() const {
     return this->period;
