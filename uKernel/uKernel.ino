@@ -1,10 +1,10 @@
 // vim:filetype=cpp:tw=81:et
 
-#include "task1.h"
-#include "task2.h"
-#include "task3.h"
-#include "task4.h"
-#include "regs.h"
+#include "include/task1.h"
+#include "include/task2.h"
+#include "include/task3.h"
+#include "include/task4.h"
+#include "include/regs.h"
 
 #define NT 20
 
