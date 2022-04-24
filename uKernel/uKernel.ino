@@ -1,4 +1,5 @@
-// vim:filetype=cpp:tw=80:et
+// vim:filetype=cpp:tw=81:et
+
 #include "task1.h"
 #include "task2.h"
 #include "task3.h"
@@ -13,12 +14,12 @@ static Task* task3 = new Task3(1, 0, 2);
 static Task* task4 = new Task4(1, 0, 3);
 
 // tasks
-Task* tasks[NT + 1]; // lower int => higher task priority
+Task* tasks[NT]; // lower int => higher task priority
 volatile unsigned int curr_task = NT;
 
 // stacks
-byte baseStack[200];
-volatile TCB_t* volatile pxCurrentTCB = baseStack;
+byte initStack[100];
+volatile TCB_t* volatile pxCurrentTCB = initStack;
 
 void Sched_Init() {
   for (auto& task: tasks)
@@ -37,7 +38,7 @@ void Sched_Init() {
   TCCR1B |= (1 << WGM12); // CTC mode
   TCCR1B |= (1 << CS12); // 256 prescaler
   TIMSK1 |= (1 << OCIE1A); // enable timer compare interrupt
-  //interrupts(); // enable all interrupts
+  interrupts(); // enable all interrupts
 }
 
 int Sched_Add(Task* t) {
@@ -77,17 +78,17 @@ void Sched_Dispatch() {
   }
 
   if (prev_task < NT && tasks[prev_task]) {
-    pxCurrentTCB = tasks[prev_task]->stack;
+    pxCurrentTCB = &tasks[prev_task]->stack;
   } else {
-    pxCurrentTCB = baseStack;
+    pxCurrentTCB = initStack;
   }
 }
+
 
 int Sched_Schedule() {
   Serial.println("Schedule");
 
   int readyCnt = 0;
-
   for (int i = 0; i < NT; ++i) {
     Task* t = tasks[i];
     if (!t) continue;
@@ -109,25 +110,26 @@ int Sched_Schedule() {
   return readyCnt;
 }
 
-//void handleISR() __attribute__(( naked ));
+//void handleISR() __attribute__(( hot, flatten, naked ));
 
 void handleISR() {
-  /* Macro that explicitly saves the execution context. */
-  //portSAVE_CONTEXT();
+  /* explicitly save the execution context */
+  portSAVE_CONTEXT();
 
   // handle ISR
   if (Sched_Schedule() > 0) {
     Sched_Dispatch();
   }
 
-  /* Macro that explicitly restores the execution context. */
-  //portRESTORE_CONTEXT();
+  /* explicitly restore the execution context */
+  portRESTORE_CONTEXT();
 
   // the return from function call must be explicitly added
   //__asm__ __volatile__ ( "ret" );
 }
 
-//ISR(portSCHEDULER_ISR, ISR_NAKED) __attribute__ (( signal ));
+//ISR(portSCHEDULER_ISR, ISR_NAKED) __attribute__ ((hot, flatten));
+ISR(portSCHEDULER_ISR) __attribute__ ((signal));
 
 ISR(TIMER1_COMPA_vect) {
   handleISR();
@@ -148,8 +150,6 @@ void setup() {
   Sched_Add(task3);
 
   Serial.println("Start");
-
-  interrupts();
 }
 
 void loop() {

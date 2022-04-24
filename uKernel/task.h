@@ -6,14 +6,14 @@ private:
   const unsigned int period;
   const int prio;
 
-  unsigned int timeDelay;
-  bool ready;
+  volatile unsigned int timeDelay;
+  volatile bool ready;
 
 public:
   /**
    * The stack where we save the task context for context switching.
    */
-  byte stack[500];
+  volatile byte stack[500];
 
   Task(unsigned int period, unsigned int timeDelay, int prio) :
       period(period), prio(prio) {
