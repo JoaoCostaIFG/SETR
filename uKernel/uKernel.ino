@@ -11,9 +11,9 @@ static Task* task2 = new Task2(1, 0, 1);
 static Task* task3 = new Task3(1, 0, 2);
 static Task* task4 = new Task4(1, 0, 3);
 
-ISR(TIMER1_COMPA_vect, ISR_NAKED) __attribute__ ((hot, flatten));
+ISR(SCHEDULER_ISR, ISR_NAKED) __attribute__ ((hot, flatten));
 
-ISR(TIMER1_COMPA_vect) {
+ISR(SCHEDULER_ISR) {
   handleISR();
 
   // the return from interrupt call must be explicitly added

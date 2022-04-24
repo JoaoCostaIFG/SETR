@@ -23,7 +23,7 @@ extern volatile TCB_t* volatile pxCurrentTCB;
  * The interrupts will have been disabled during the call to portSAVE_CONTEXT()
  * so we need not worry about reading/writing to the stack pointer.
  */
-#define portSAVE_CONTEXT()                                                              \
+#define SAVE_CONTEXT()                                                                  \
         __asm__ __volatile__ (  "push   __tmp_reg__                             \n\t"   \
                                 "in     __tmp_reg__, __SREG__                   \n\t"   \
                                 "cli                                            \n\t"   \
@@ -72,7 +72,7 @@ extern volatile TCB_t* volatile pxCurrentTCB;
  * Opposite to portSAVE_CONTEXT().  Interrupts will have been disabled during
  * the context save so we can write to the stack pointer.
  */
-#define portRESTORE_CONTEXT()                                                           \
+#define RESTORE_CONTEXT()                                                               \
         __asm__ __volatile__ (  "lds    r26, pxCurrentTCB                       \n\t"   \
                                 "lds    r27, pxCurrentTCB + 1                   \n\t"   \
                                 "ld     r28, x+                                 \n\t"   \
