@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #include "include/scheduler.h"
-#include "include/regs.h"
+#include "include/context.h"
 
 #define NT 20
 
