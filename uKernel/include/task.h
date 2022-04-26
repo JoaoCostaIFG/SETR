@@ -13,7 +13,7 @@ public:
   /**
    * The stack where we save the task context for context switching.
    */
-  volatile byte stack[500];
+  volatile byte stack[200];
 
   Task(unsigned int period, unsigned int timeDelay, int prio) :
       period(period), prio(prio) {
