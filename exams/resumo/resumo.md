@@ -321,7 +321,7 @@ timing constraints.
   - Permite usar 100% do CPU garantindo time constraints.
 - $D < T$
   - $U^ * = \sum_{i=1}^n \frac{C_i}{D_i} <= 1$ => schedulable set;
-  - **Aqui o $U^{ * }$ é utilization** (not utilization);
+  - **Aqui o $U^{ * }$ é density** (not utilization);
   - Condicao suficiente.
 - Arbitrary D
   - $\sum_{i=1}^n \frac{C_i}{min(D_i, T_i)} <= 1$ => schedulable set;
@@ -398,13 +398,14 @@ timing constraints.
 
 - **Priority inversion** - When tasks can access shared resources in **exclusive
   mode**, tasks can be blocked by lower priority tasks:
+
   - É um fenónemo inevitável na presença de acesso exclusivo a shared resources;
   - Temos de **limitar e quantificar** o seu **impacto** no worst-case para
     analisar a **schedulability**;
   - Techniques should allow bouding the period of priority inversion
     (quantificar o worst-case blocking).
 
-![priority_inversion](img/priority_inversion.png)
+  ![priority_inversion](img/priority_inversion.png)
 
 Quando blocking está bounded (B), o mais comum é considerar que a task tem uma
 maior tempo de execução (C + B).
