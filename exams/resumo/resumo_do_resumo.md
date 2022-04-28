@@ -173,6 +173,14 @@ Control of the **execution instants** of the program operations:
   - This is pessimistic;
   - Se funciona no pessimista => funciona no real.
 
+### Special case: Harmonic periods
+
+- Se os periods forem harmónicos, verificamos se $U(n) <= 100%$ em vez de ver a
+  LUB;
+- **Períodos harmónicos** - sáo todos múltiplos entre si;
+- No caso do DM, olhámos para as deadlines em vez dos periods: a deadline é o
+  period.
+
 ### Response time analysis
 
 - Condições para o teste ser necessário e suficiente:
