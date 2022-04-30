@@ -8,7 +8,7 @@
 #define BYTE_ALIGNMENT_MASK   ( 0x0000 )
 
 // TODO dynamic
-#define STACKDEPTH 200
+#define STACKDEPTH 500
 
 typedef byte stack_t;
 

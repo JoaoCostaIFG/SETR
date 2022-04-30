@@ -10,9 +10,9 @@ Task::Task(taskfunc_t run, void* params, unsigned int period, unsigned int timeD
   //this->stack = new stack_t[STACKDEPTH];
   this->stack = (stack_t*) malloc(STACKDEPTH * sizeof(stack_t));
   // get stack top addr
-  this->stackAddr = &(this->stack[STACKDEPTH - 1]);
+  this->stackAddr = &(this->stack[STACKDEPTH - (uint16_t) 1]);
   this->stackAddr = (stack_t*) (((POINTER_SIZE_TYPE)
-      this->stackAddr) & (~((POINTER_SIZE_TYPE) BYTE_ALIGNMENT_MASK)));
+      this->stackAddr) & ~((POINTER_SIZE_TYPE) BYTE_ALIGNMENT_MASK));
   // assert
   if ((((POINTER_SIZE_TYPE) this->stackAddr) & ((POINTER_SIZE_TYPE) BYTE_ALIGNMENT_MASK)) != 0UL) {
     Serial.println("Top of stack addr assert failed");
