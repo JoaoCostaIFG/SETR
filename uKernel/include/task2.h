@@ -1,16 +1,6 @@
-#ifndef TASK2_H
-#define TASK2_H
+#ifndef TASK_2
+#define TASK_2
 
-#include "task.h"
+void task2Func(void * arg);
 
-class Task2 : public Task {
-public:
-  Task2(unsigned int period, unsigned int timeDelay, int prio) :
-      Task(period, timeDelay, prio) {}
-
-  void init() override;
-
-  void run() override;
-};
-
-#endif // TASK2_H
+#endif /* ifndef TASK_2 */

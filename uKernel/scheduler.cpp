@@ -35,7 +35,6 @@ void Sched_Init() {
 int Sched_Add(Task* t) {
   int prio = t->getPrio();
   if (!tasks[prio]) {
-    t->init();
     tasks[prio] = t;
     return prio;
   }
@@ -58,7 +57,7 @@ void Sched_Dispatch() {
     curr_task = i;
     pxCurrentTCB = t->getStackAddr(); // set current stack
     interrupts();
-    t->run();
+    // t->run(); // TODO
     noInterrupts();
     curr_task = prev_task;
 

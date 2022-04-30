@@ -1,16 +1,6 @@
-#ifndef TASK3_H
-#define TASK3_H
+#ifndef TASK_3
+#define TASK_3
 
-#include "task.h"
+void task3Func(void * arg);
 
-class Task3 : public Task {
-public:
-  Task3(unsigned int period, unsigned int timeDelay, int prio) :
-      Task(period, timeDelay, prio) {}
-
-  void init() override;
-
-  void run() override;
-};
-
-#endif // TASK3_H
+#endif /* ifndef TASK_3 */

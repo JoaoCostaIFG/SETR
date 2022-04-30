@@ -1,15 +1,11 @@
 #include <Arduino.h>
 
-#include "include/task3.h"
-
 #define LEDPIN 11
 
-void Task3::init() {
+void task3Func(void* arg) {
   //set pin as output
   pinMode(LEDPIN, OUTPUT);
   digitalWrite(LEDPIN, HIGH);
-}
 
-void Task3::run() {
   digitalWrite(LEDPIN, !digitalRead(LEDPIN));
 }

@@ -12,8 +12,13 @@
 
 typedef byte stack_t;
 
+typedef void (* taskfunc_t)(void*);
+
 class Task {
 private:
+  taskfunc_t run;
+  void* params;
+
   const unsigned int period;
   const int prio;
 
@@ -27,25 +32,11 @@ private:
 
   stack_t* stackAddr;
 
+  // Initialize stack as if _run_ was called and immediately interrupted
+  void initializeStack();
+
 public:
-  Task(unsigned int period, unsigned int timeDelay, int prio) :
-      period(period), prio(prio) {
-    this->timeDelay = timeDelay;
-    this->ready = (timeDelay == 0);
-    // alloc stack
-    this->stack = new stack_t[STACKDEPTH];
-    // get stack top addr
-    this->stackAddr = &(this->stack[STACKDEPTH - 1]);
-    this->stackAddr = (stack_t*) (((POINTER_SIZE_TYPE) this->stackAddr) & (~((POINTER_SIZE_TYPE) BYTE_ALIGNMENT_MASK)));
-    // assert
-    if ((((POINTER_SIZE_TYPE) this->stackAddr) & ((POINTER_SIZE_TYPE) BYTE_ALIGNMENT_MASK)) != 0UL) {
-      Serial.println("Top of stack addr assert failed");
-    }
-  }
-
-  virtual void init() = 0;
-
-  virtual void run() = 0;
+  Task(taskfunc_t run, void* params, unsigned int period, unsigned int timeDelay, int prio);
 
   stack_t* getStackAddr() {
     return this->stackAddr;
