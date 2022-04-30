@@ -56,7 +56,7 @@ void Sched_Dispatch() {
 
     // run task
     curr_task = i;
-    pxCurrentTCB = t->stack; // set current stack
+    pxCurrentTCB = t->getStackAddr(); // set current stack
     interrupts();
     t->run();
     noInterrupts();
@@ -70,7 +70,7 @@ void Sched_Dispatch() {
 
   // restore pointer to previous stack
   pxCurrentTCB = (prev_task < NT && tasks[prev_task]) ?
-                 tasks[prev_task]->stack :
+                 tasks[prev_task]->getStackAddr() :
                  baseStack;
 }
 
