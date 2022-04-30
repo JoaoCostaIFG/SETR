@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "include/task.h"
 
 Task::Task(taskfunc_t run, void* params, unsigned int period, unsigned int timeDelay, int prio) :
@@ -5,13 +7,14 @@ Task::Task(taskfunc_t run, void* params, unsigned int period, unsigned int timeD
   this->timeDelay = timeDelay;
   this->ready = (timeDelay == 0);
   // alloc stack
-  this->stack = new stack_t[STACKDEPTH];
+  //this->stack = new stack_t[STACKDEPTH];
+  this->stack = (stack_t*) malloc(STACKDEPTH * sizeof(stack_t));
   // get stack top addr
   this->stackAddr = &(this->stack[STACKDEPTH - 1]);
   this->stackAddr = (stack_t*) (((POINTER_SIZE_TYPE)
-  this->stackAddr) &(~((POINTER_SIZE_TYPE)BYTE_ALIGNMENT_MASK)));
+      this->stackAddr) & (~((POINTER_SIZE_TYPE) BYTE_ALIGNMENT_MASK)));
   // assert
-  if ((((POINTER_SIZE_TYPE) this->stackAddr) &((POINTER_SIZE_TYPE)BYTE_ALIGNMENT_MASK)) != 0UL) {
+  if ((((POINTER_SIZE_TYPE) this->stackAddr) & ((POINTER_SIZE_TYPE) BYTE_ALIGNMENT_MASK)) != 0UL) {
     Serial.println("Top of stack addr assert failed");
   }
   this->initializeStack();
@@ -20,18 +23,16 @@ Task::Task(taskfunc_t run, void* params, unsigned int period, unsigned int timeD
 void Task::initializeStack() {
   POINTER_SIZE_TYPE usAddress;
 
-  /* The start of the task code will be popped off the stack last, so place
-  it on first. */
-  usAddress = (POINTER_SIZE_TYPE)(&this->run);
+  // save task code (bottom of the stack)
+  usAddress = (POINTER_SIZE_TYPE) (&this->run);
   *this->stackAddr = (stack_t) (usAddress & (POINTER_SIZE_TYPE) 0x00ff);
   this->stackAddr--;
-
   usAddress >>= 8;
   *this->stackAddr = (stack_t) (usAddress & (POINTER_SIZE_TYPE) 0x00ff);
   this->stackAddr--;
 
-  /* Next simulate the stack as if after a call to portSAVE_CONTEXT().
-  portSAVE_CONTEXT places the flags on the stack immediately after r0
+  /* Next simulate the stack as if after a call to SAVE_CONTEXT().
+  SAVE_CONTEXT places the flags on the stack immediately after r0
   to ensure the interrupts get disabled as soon as possible, and so ensuring
   the stack use is minimal should a context switch interrupt occur. */
   *this->stackAddr = (stack_t) 0x00;    /* R0 */
@@ -46,11 +47,9 @@ void Task::initializeStack() {
   this->stackAddr -= 23;
 
   /* Place the parameter on the stack in the expected location. */
-  usAddress = (POINTER_SIZE_TYPE)
-  this->params;
+  usAddress = (POINTER_SIZE_TYPE) this->params;
   *this->stackAddr = (stack_t) (usAddress & (POINTER_SIZE_TYPE) 0x00ff);
   this->stackAddr--;
-
   usAddress >>= 8;
   *this->stackAddr = (stack_t) (usAddress & (POINTER_SIZE_TYPE) 0x00ff);
 

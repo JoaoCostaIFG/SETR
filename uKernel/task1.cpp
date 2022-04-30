@@ -7,6 +7,8 @@ void task1Func(void* arg) {
   pinMode(LEDPIN, OUTPUT);
   digitalWrite(LEDPIN, HIGH);
 
-  digitalWrite(LEDPIN, !digitalRead(LEDPIN));
-  delay(700);
+  while (true) {
+    digitalWrite(LEDPIN, !digitalRead(LEDPIN));
+    delay(1000);
+  }
 }
