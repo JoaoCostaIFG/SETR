@@ -7,9 +7,6 @@
 #define BYTE_ALIGNMENT        1
 #define BYTE_ALIGNMENT_MASK   ( 0x0000 )
 
-// TODO dynamic
-#define STACKDEPTH 500
-
 typedef byte stack_t;
 
 typedef void (* taskfunc_t)(void*);
@@ -32,18 +29,17 @@ private:
 
   stack_t* stackAddr;
 
+  void inline push2stack(stack_t pushable) __attribute__((always_inline));
+
   // Initialize stack as if _run_ was called and immediately interrupted
   void initializeStack();
 
-  bool firstStart = false;
-
 public:
-  Task(taskfunc_t run, void* params, unsigned int period, unsigned int timeDelay, int prio);
+  Task(taskfunc_t run, void* params, unsigned int stackSize,
+       unsigned int period, unsigned int timeDelay, int prio);
 
-  void stackDump();
-
-  stack_t* getStackAddr() {
-    return this->stackAddr;
+  stack_t** getStackAddr() {
+    return &(this->stackAddr);
   }
 
   unsigned int getPeriod() const {
