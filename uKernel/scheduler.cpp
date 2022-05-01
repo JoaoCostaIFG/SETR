@@ -15,14 +15,14 @@ void Sched_SetupTimer() {
   noInterrupts();
 
   /* configure time */
-  SCHEDULER_TCCRXA  = 0;
-  SCHEDULER_TCCRXB  = 0;
-  SCHEDULER_TCNT    = 0;
+  SCHEDULER_TCCRXA = 0;
+  SCHEDULER_TCCRXB = 0;
+  SCHEDULER_TCNT = 0;
   // freq (s) = CMR / (clock / prescaler) = CMR / (16MHz / prescale).
-  SCHEDULER_OCRXA   = 31250;                // Compare Match Register (CMR)
+  SCHEDULER_OCRXA = 31250;                // Compare Match Register (CMR)
   SCHEDULER_TCCRXB |= SCHEDULER_PRESCALER;  // 256 prescaler
   SCHEDULER_TCCRXB |= (1 << WGM12);         // CTC mode
-  SCHEDULER_TIMSK  |= (1 << OCIE1A);        // enable timer compare interrupt
+  SCHEDULER_TIMSK |= (1 << OCIE1A);        // enable timer compare interrupt
 
   interrupts();
 }
@@ -32,10 +32,11 @@ void Sched_Init() {
     task = nullptr;
 }
 
-void Sched_Start () {
+void Sched_Start() {
   Serial.println("Start");
+  Serial.flush();
 
-  Sched_SetupTimer();
+  //Sched_SetupTimer();
 
   // restore context of the first task to run
   RESTORE_CONTEXT();

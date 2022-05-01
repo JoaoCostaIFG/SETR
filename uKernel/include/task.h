@@ -35,8 +35,12 @@ private:
   // Initialize stack as if _run_ was called and immediately interrupted
   void initializeStack();
 
+  bool firstStart = false;
+
 public:
   Task(taskfunc_t run, void* params, unsigned int period, unsigned int timeDelay, int prio);
+
+  void stackDump();
 
   stack_t* getStackAddr() {
     return this->stackAddr;
