@@ -1,5 +1,8 @@
 #include <Arduino.h>
 
+#include "include/task1.h"
+#include "include/scheduler.h"
+
 #define LEDPIN  13
 #define OFF     HIGH
 #define ON      LOW
@@ -10,7 +13,9 @@ void task1Func(void* arg) {
   digitalWrite(LEDPIN, ON);
 
   while (true) {
+    Serial.println("In task1");
     digitalWrite(LEDPIN, !digitalRead(LEDPIN));
-    delay(1000);
+
+    Sched_ManualCtxSwitch(); // yield
   }
 }

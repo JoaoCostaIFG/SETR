@@ -5,8 +5,17 @@
 
 #define NT 20
 
+void idleTaskFunc(void* arg) {
+  while (true) {
+    //Serial.println("In idle");
+    //delay(1000);
+    ;
+  }
+};
+
 // tasks
 Task* tasks[NT]; // lower int => higher task priority
+static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 128, 1, 0, NT - 1);
 volatile unsigned int curr_task = NT;
 // stack
 volatile TCB_t* volatile currentStack = nullptr;
@@ -31,13 +40,15 @@ void Sched_SetupTimer() {
 void Sched_Init() {
   for (auto& task: tasks)
     task = nullptr;
+
+  Sched_Add(idleTask);
 }
 
 void Sched_Start() {
   Serial.println("Start");
   Serial.flush();
 
-  //Sched_SetupTimer();
+  Sched_SetupTimer();
 
   // restore context of the first task to run
   noInterrupts();
@@ -55,9 +66,11 @@ int Sched_Add(Task* t) {
   int prio = t->getPrio();
   if (!tasks[prio]) {
     tasks[prio] = t;
-    if (currentStack == nullptr) {
-      Serial.println("First task");
+    if (currentStack == nullptr || // first task (idle task)
+        (t->getDelay() == 0 && prio < curr_task)) { // or, not offset task with higher prio
+      // first task to run
       currentStack = t->getStackAddr();
+      curr_task = prio;
     }
     return prio;
   }
@@ -75,35 +88,28 @@ void Sched_Dispatch() {
       continue;
 
     t->setReady(false);
-
     // run task
     curr_task = i;
     currentStack = t->getStackAddr(); // set current stack
-    interrupts();
-    // t->run(); // TODO
-    noInterrupts();
-    curr_task = prev_task;
+    return;
 
     // delete one-shot
+    // TODO
+    /*
     if (t->getPeriod() == 0) {
       tasks[i] = nullptr;
     }
+     */
   }
-
-  // restore pointer to previous stack
-  /*
-  currentStack = (prev_task < NT && tasks[prev_task]) ?
-                 tasks[prev_task]->getStackAddr() :
-                 baseStack;
-  */
 }
-
 
 int Sched_Schedule() {
   Serial.println("Schedule");
 
-  int readyCnt = 0;
-  for (int i = 0; i < NT; ++i) {
+  tasks[NT - 1]->setReady(true);
+
+  int readyCnt = 1; // idle task is always ready
+  for (int i = 0; i < NT - 1; ++i) {
     Task* t = tasks[i];
     if (!t) continue;
 
@@ -129,6 +135,7 @@ void Sched_ManualCtxSwitch() {
   SAVE_CONTEXT();
 
   // dispatch
+  curr_task = NT; // can go to any task
   Sched_Dispatch();
 
   /* explicitly restore the execution context */
@@ -143,11 +150,9 @@ void Sched_CtxSwitch() {
   SAVE_CONTEXT();
 
   // sched + dispatch
-  /* TODO
-  if (Sched_Schedule() > 0) {
+  if (Sched_Schedule() > 1) {
     Sched_Dispatch();
   }
-   */
 
   /* explicitly restore the execution context */
   RESTORE_CONTEXT();

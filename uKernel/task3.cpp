@@ -1,5 +1,7 @@
 #include <Arduino.h>
 
+#include "include/task3.h"
+
 #define LEDPIN 11
 
 void task3Func(void* arg) {

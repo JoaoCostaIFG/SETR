@@ -11,7 +11,6 @@ static Task* task1 = new Task(&task1Func, (void*) 0, 128, 3, 1, 0);
 //static Task* task3 = new Task(&task3Func, nullptr, 1, 0, 2);
 //static Task* task4 = new Task(&task4Func, nullptr, 1, 0, 3);
 
-/*
 ISR(SCHEDULER_ISR, ISR_NAKED) __attribute__ ((hot, flatten));
 
 ISR(SCHEDULER_ISR) {
@@ -21,7 +20,6 @@ ISR(SCHEDULER_ISR) {
   // the return from interrupt call must be explicitly added
   __asm__ __volatile__ ( "reti" );
 }
- */
 
 void setup() {
   Sched_Init();
