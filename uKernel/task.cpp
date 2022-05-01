@@ -11,13 +11,15 @@ Task::Task(taskfunc_t run, void* params, unsigned int period, unsigned int timeD
   // get stack top addr
   this->stackAddr = &(this->stack[STACKDEPTH - (uint16_t) 1]);
   this->stackAddr = (stack_t*) (((POINTER_SIZE_TYPE)
-      this->stackAddr) & ~((POINTER_SIZE_TYPE) BYTE_ALIGNMENT_MASK));
+  this->stackAddr) &~((POINTER_SIZE_TYPE)BYTE_ALIGNMENT_MASK));
   this->initializeStack();
 }
 
-void inline push2stack(stack_t** stack, stack_t pushable) {
+void push2stack(stack_t** stack, stack_t pushable) __attribute__((always_inline));
+
+void push2stack(stack_t** stack, stack_t pushable) {
   **stack = pushable;
-  --(*stack);
+  (*stack)--;
 }
 
 void Task::initializeStack() {
@@ -30,7 +32,7 @@ void Task::initializeStack() {
   push2stack(&this->stackAddr, 0x33);
 
   // save task code (bottom of the stack)
-  usAddress = (POINTER_SIZE_TYPE) (&this->run);
+  usAddress = (POINTER_SIZE_TYPE) this->run;
   push2stack(&this->stackAddr, (stack_t) (usAddress & (POINTER_SIZE_TYPE) 0x00ff));
   usAddress >>= 8;
   push2stack(&this->stackAddr, (stack_t) (usAddress & (POINTER_SIZE_TYPE) 0x00ff));
@@ -81,15 +83,27 @@ void Task::initializeStack() {
   push2stack(&this->stackAddr, (stack_t) 0x29); /* R29 */
   push2stack(&this->stackAddr, (stack_t) 0x30); /* R30 */
   push2stack(&this->stackAddr, (stack_t) 0x31); /* R31 */
+
+  // Save stack pointer
+  usAddress = (POINTER_SIZE_TYPE) this->stackAddr;
+  push2stack(&this->stackAddr, (stack_t) ((usAddress >> 8) & (POINTER_SIZE_TYPE) 0x00ff));
+  *this->stackAddr = (stack_t) (usAddress & (POINTER_SIZE_TYPE) 0x00ff);
 }
 
 void Task::stackDump() {
-  uint16_t runAddr = (POINTER_SIZE_TYPE) (&this->run);
+  uint16_t
+      runAddr = (POINTER_SIZE_TYPE)
+  this->run;
   Serial.print("Run addr: ");
   Serial.println(runAddr, 16);
+  Serial.print("Stack addr: ");
+  Serial.println((size_t)
+  this->stackAddr, 16);
 
+  /*
   Serial.println("Stack:");
   for (int i = 0; i < STACKDEPTH; ++i) {
     Serial.println(this->stack[i], 16);
   }
+   */
 }

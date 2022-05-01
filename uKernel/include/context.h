@@ -69,8 +69,8 @@ extern volatile TCB_t* volatile currentStack;
                              );
 
 /*
- * Opposite to portSAVE_CONTEXT().  Interrupts will have been disabled during
- * the context save so we can write to the stack pointer.
+ * Opposite to SAVE_CONTEXT().  Interrupts will have been disabled during
+ * the context save, so we can write to the stack pointer.
  */
 #define RESTORE_CONTEXT()                                                               \
         __asm__ __volatile__ (  "lds    r26, currentStack                       \n\t"   \
