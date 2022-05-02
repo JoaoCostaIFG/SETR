@@ -2,21 +2,30 @@
 
 #include "include/scheduler.h"
 #include "include/context.h"
+#include <stdlib.h>
 
 #define NT 20
 
+// TODO delete one-shot
+
 void idleTaskFunc(void* arg) {
   while (true) {
+#ifdef DEBUG
     //Serial.println("In idle");
     //delay(1000);
+#endif
     ;
   }
 };
 
 // tasks
-Task* tasks[NT]; // lower int => higher task priority
-static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 128, 1, 0, NT - 1);
-volatile unsigned int curr_task = NT;
+static Task* tasks[NT]; // lower index => higher task priority
+static int nTasks = 0;
+
+//TODO: max_int
+static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 128, 1, 0, 999);
+volatile Task* curr_task;
+
 // stack
 volatile TCB_t* volatile currentStack = nullptr;
 
@@ -44,9 +53,17 @@ void Sched_Init() {
   Sched_Add(idleTask);
 }
 
+void sortTasks() {
+  qsort(tasks, nTasks, sizeof(Task*), compareTask);
+}
+
 void Sched_Start() {
+#ifdef DEBUG
   Serial.println("Start");
-  Serial.flush();
+#endif
+
+  sortTasks();
+  currentStack = tasks[0]->getStackAddr();
 
   Sched_SetupTimer();
 
@@ -62,60 +79,39 @@ void Sched_Start() {
   return;
 }
 
-int Sched_Add(Task* t) {
-  int prio = t->getPrio();
-  if (!tasks[prio]) {
-    tasks[prio] = t;
-    if (currentStack == nullptr || // first task (idle task)
-        (t->getDelay() == 0 && prio < curr_task)) { // or, not offset task with higher prio
-      // first task to run
-      currentStack = t->getStackAddr();
-      curr_task = prio;
-    }
-    return prio;
-  }
-  return -1;
+//TODO: assert nTasks < NT
+void Sched_Add(Task* t) {
+  tasks[nTasks++] = t;
 }
 
+
 void Sched_Dispatch() {
-  Serial.println("Dispatch");
+#ifdef DEBUG
+  //Serial.println("Dispatch");
+#endif
 
-  unsigned int prev_task = curr_task;
+  Task* highestTaskPrio = tasks[0];
 
-  for (unsigned int i = 0; i < prev_task; ++i) {
-    Task* t = tasks[i];
-    if (!t || !t->isReady())
-      continue;
-
-    t->setReady(false);
-    // run task
-    curr_task = i;
-    currentStack = t->getStackAddr(); // set current stack
-    return;
-
-    // delete one-shot
-    // TODO
-    /*
-    if (t->getPeriod() == 0) {
-      tasks[i] = nullptr;
-    }
-     */
+  if (highestTaskPrio && highestTaskPrio != curr_task) {
+    curr_task = highestTaskPrio;
+    currentStack = highestTaskPrio->getStackAddr(); // set current stack
   }
 }
 
 int Sched_Schedule() {
-  Serial.println("Schedule");
+#ifdef DEBUG
+  //Serial.println("Schedule");
+#endif
 
-  tasks[NT - 1]->setReady(true);
+  idleTask->setReady(true);
 
-  int readyCnt = 1; // idle task is always ready
-  for (int i = 0; i < NT - 1; ++i) {
+  int readyCnt = 0;
+  for (int i = 0; i < nTasks; ++i) {
     Task* t = tasks[i];
     if (!t) continue;
 
     if (t->isReady()) { // ready tasks are already scheduled
       ++readyCnt;
-      continue;
     }
 
     if (t->getDelay() > 0) {
@@ -127,35 +123,46 @@ int Sched_Schedule() {
     }
   }
 
+  // sort priorities
+  sortTasks();
+
   return readyCnt;
 }
 
-void Sched_ManualCtxSwitch() {
-  /* explicitly save the execution context */
-  SAVE_CONTEXT();
+void Sched_YieldDispatch() {
+#ifdef DEBUG
+  Serial.println("Yield");
+#endif
+
+  curr_task->setReady(false);
+  curr_task->nextDeadline();
+  sortTasks();
+  curr_task = nullptr; // can go to any task
+
+  Sched_Dispatch();
+}
+
+void Sched_Yield() {
+  SAVE_CONTEXT(); // save the execution context
 
   // dispatch
-  curr_task = NT; // can go to any task
-  Sched_Dispatch();
+  Sched_YieldDispatch();
 
-  /* explicitly restore the execution context */
-  RESTORE_CONTEXT();
+  RESTORE_CONTEXT(); // restore the execution context
 
   // the return from function call must be explicitly added
   __asm__ __volatile__ ( "ret" );
 }
 
 void Sched_CtxSwitch() {
-  /* explicitly save the execution context */
-  SAVE_CONTEXT();
+  SAVE_CONTEXT(); // save the execution context
 
   // sched + dispatch
   if (Sched_Schedule() > 1) {
     Sched_Dispatch();
   }
 
-  /* explicitly restore the execution context */
-  RESTORE_CONTEXT();
+  RESTORE_CONTEXT(); // restore the execution context
 
   // the return from function call must be explicitly added
   __asm__ __volatile__ ( "ret" );

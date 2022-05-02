@@ -15,18 +15,15 @@ class Task {
 private:
   taskfunc_t run;
   void* params;
-
   const unsigned int period;
-  const int prio;
-
   volatile unsigned int timeDelay;
+  volatile unsigned int deadline;
   volatile bool ready;
   /**
    * The task's stack
    * The stack where we save the task context for context switching.
    */
   stack_t* stack;
-
   stack_t* stackAddr;
 
   void inline push2stack(stack_t pushable) __attribute__((always_inline));
@@ -36,7 +33,10 @@ private:
 
 public:
   Task(taskfunc_t run, void* params, unsigned int stackSize,
-       unsigned int period, unsigned int timeDelay, int prio);
+       unsigned int period, unsigned int timeDelay, unsigned int deadline);
+
+  Task(taskfunc_t run, void* params, unsigned int stackSize,
+       unsigned int period, unsigned int timeDelay);
 
   stack_t** getStackAddr() {
     return &(this->stackAddr);
@@ -59,17 +59,39 @@ public:
     this->timeDelay = this->period - 1;
   }
 
-  int getPrio() const {
-    return this->prio;
+  void nextDeadline() volatile {
+    this->deadline += this->period;
+  }
+
+  unsigned int getDeadline() const {
+    return this->deadline;
   }
 
   bool isReady() const {
     return this->ready;
   }
 
-  void setReady(bool isReady) {
+  void setReady(bool isReady) volatile {
     this->ready = isReady;
   }
+
+  bool operator<(const Task& o) const {
+    if (!this->ready && o.isReady()) return false;
+    if (this->ready && !o.isReady()) return true;
+    return this->deadline < o.getDeadline();
+  }
+
+  bool operator==(const Task& o) const {
+    return this->deadline == o.getDeadline() && this->ready == o.isReady();
+  }
+
+  bool operator>(const Task& o) const {
+    if (!this->ready && o.isReady()) return true;
+    if (this->ready && !o.isReady()) return false;
+    return this->deadline > o.getDeadline();
+  }
 };
+
+int compareTask(const void* a, const void* b);
 
 #endif // TASK_H

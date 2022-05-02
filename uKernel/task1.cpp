@@ -13,9 +13,11 @@ void task1Func(void* arg) {
   digitalWrite(LEDPIN, ON);
 
   while (true) {
+#ifdef DEBUG
     Serial.println("In task1");
+#endif
     digitalWrite(LEDPIN, !digitalRead(LEDPIN));
 
-    Sched_ManualCtxSwitch(); // yield
+    Sched_Yield(); // yield
   }
 }

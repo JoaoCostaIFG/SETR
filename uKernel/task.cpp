@@ -1,8 +1,8 @@
 #include "include/task.h"
 
 Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
-           unsigned int period, unsigned int timeDelay, int prio) :
-    run(run), params(params), period(period), prio(prio) {
+           unsigned int period, unsigned int timeDelay, unsigned int deadline) :
+    run(run), params(params), period(period), deadline(deadline) {
   this->timeDelay = timeDelay;
   this->ready = (timeDelay == 0);
   // alloc stack
@@ -15,6 +15,10 @@ Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
   this->stackAddr) &~((POINTER_SIZE_TYPE)BYTE_ALIGNMENT_MASK));
   this->initializeStack();
 }
+
+Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
+           unsigned int period, unsigned int timeDelay) :
+    Task(run, params, stackSize, period, timeDelay, period) {}
 
 void inline Task::push2stack(stack_t pushable) {
   *this->stackAddr = pushable;
@@ -90,4 +94,17 @@ void Task::initializeStack() {
   //usAddress = (POINTER_SIZE_TYPE) this->stackAddr;
   //this->push2stack((stack_t) ((usAddress >> 8) & (POINTER_SIZE_TYPE) 0x00ff));
   //*this->stackAddr = (stack_t) (usAddress & (POINTER_SIZE_TYPE) 0x00ff);
+}
+
+int compareTask(const void* a, const void* b) {
+  Task* t1 = *((Task**) a);
+  Task* t2 = *((Task**) b);
+
+  if (*t1 < *t2) return -1;
+  if (*t1 > *t2) return 1;
+  
+  // this is done to enforce order between tasks with the same deadline after sorting.
+  // if this was not done, some tasks, even though they had the same prio, could preempt tasks with the 
+  // same piority, which is not desired
+  return (size_t)t1 < (size_t)t2; 
 }
