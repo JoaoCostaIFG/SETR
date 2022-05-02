@@ -5,7 +5,7 @@ class's final project, I'm developing a real-time kernel for
 [Arduino UNO](https://www.arduino.cc/en/Main/arduinoBoardUno). I'll try to
 document the development in a series of posts. This is part #1.
 
-Today (as of writing) was the exams day: the _final_ exam was in the middle of
+Today (as of writing) was the exam's day: the _final_ exam was in the middle of
 the semester. As such, the rest of lectures are reserved for the development of
 the project. My team (me and 2 friends) decided to develop a micro-kernel
 (uKernel) for the Arduino UNO. The Arduino wasn't chosen for any reason in
@@ -16,8 +16,8 @@ particular (besides being available at the school's lab).
 Around 2 weeks ago, we had a guided _workshop_ to develop a small Kernel for the
 Arduino (in C). It was a **tick-based preemptive** kernel supporting a fixed
 task-set of periodic tasks with **fixed priorities**. This kernel had both a
-scheduler and a dispatcher, so we had whats called **on-line scheduling**. The
-tasks' **deadlines** are equal to their **periods**
+scheduler and a dispatcher, so we had what's called **on-line scheduling**. The
+tasks' **deadlines** are equal to their **periods**.
 
 ### Explaining concepts
 
@@ -39,7 +39,7 @@ tasks' **deadlines** are equal to their **periods**
 
 ---
 
-![preemption](img/preemption.png)
+![preemption](/storage/img/ukernel1/preemption.png)
 
 ### Source code
 
@@ -132,7 +132,7 @@ void loop(){
 
 In the code above, I've omitted some details like the implementation of the
 tasks function (`FuncX`, `FuncY`, `FuncZ` just toggle their respective LED) and
-how to setup timer interrupts, for simplicity sake.
+how to set up timer interrupts, for simplicity’s sake.
 
 ### Code analysis
 
@@ -208,11 +208,11 @@ test using _Liu & Layland's_ **Least Upper Bound (LUB)**:
 
 The image below shows this test being applied to the task-set above.
 
-![lub test](img/lub.png)
+![lub test](/storage/img/ukernel1/lub.png)
 
 As the image displays, the **task-set is schedulable**.
 
-#### Harmonic periods - special case
+#### Harmonic periods – special case
 
 If the periods of all tasks are harmonic (all multiples of each other), we
 compare the CPU utilization to 100% (instead of the LUB): `U(n) <= 1`.
@@ -220,9 +220,9 @@ compare the CPU utilization to 100% (instead of the LUB): `U(n) <= 1`.
 It should be noted that, if the **periods** aren't harmonic, we can't grantee
 100% CPU utilization with fixed priority systems.
 
-![harmonic_periods](img/harmonic_periods.png)
+![harmonic_periods](/storage/img/ukernel1/harmonic_periods.png)
 
-In the image above we have 2 systems with 2 tasks each:
+In the image above, we have 2 systems with 2 tasks each:
 
 - In the first system, the periods are harmonic. The tasks use 100% of the CPU,
   and the task-set is schedulable;
@@ -248,3 +248,39 @@ proceeding.
 When this happens, we're going back on our chain of tasks. This means that when
 the control returns to the lower priority task, it can override that higher
 priority's stack data (for example, by calling a function).
+
+![block_stack_corruption](/storage/img/ukernel1/block_stack_corruption.png)
+
+In the image above, we see how a function call from the lower priority task
+(after blocking the higher priority one) can corrupt the stack.
+
+To deal with this, we'll implement mechanisms to manage the access to shared
+resources, and their protection mechanisms. Most of these solutions require us
+to implement multiple stacks: one for each task.
+
+### Shared resource access
+
+There are several solutions available to us here depending on which techniques
+of shared resource access control we want to implement. These techniques divide
+themselves into 2 main groups:
+
+- Global - Interrupt disabling and/or preemption disabling. These are only
+  feasible for extremely small critical regions as they block the whole system.
+  We won't really deal with this in our implementation.
+- Local - **Mutexes** and **semaphores**.
+
+The local methods are more efficient, but they can introduce some other
+problems, namely: undetermined blocking, chained blocking, and deadlocks. The
+protection mechanisms intend to mitigate one or more of these. We'll explore
+these in the future (when we're implementing them).
+
+## Conclusion
+
+I tried to explain most of what I find the _fundamental_ concepts of Real-time
+systems, so next posts can be easier to follow. I hope it wasn't too much.
+
+In the next chapter, we'll explore how we can implement multiple stacks: one for
+each task. Spoiler: there's assembly involved. We'll also start using C++ where
+we can, so we can clean up the code by using classes.
+
+Stay safe :P
