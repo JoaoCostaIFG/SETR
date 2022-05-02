@@ -14,7 +14,9 @@ static Task* task3 = new Task(&task3Func, (void*) 0, 128, 1, 0, 1);
 ISR(SCHEDULER_ISR, ISR_NAKED) __attribute__ ((hot, flatten));
 
 ISR(SCHEDULER_ISR) {
+#ifdef DEBUG
   Serial.println("ISR");
+#endif
   Sched_CtxSwitch();
 
   // the return from interrupt call must be explicitly added
@@ -24,11 +26,13 @@ ISR(SCHEDULER_ISR) {
 void setup() {
   Sched_Init();
 
+#ifdef DEBUG
   Serial.begin(9600);
   while (!Serial) {
     // wait for serial port to connect
     ;
   }
+#endif
 
   Sched_Add(task1);
   Sched_Add(task2);

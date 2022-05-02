@@ -12,8 +12,13 @@ BOOTLOADER_PARENT = /usr/share/arduino/hardware/archlinux-arduino/avr/bootloader
 BOARD_TAG    = uno
 ARDUINO_LIBS =
 
-CFLAGS = -g
-CPPFLAGS = -g
+
+DEBUGBUILD ?= 1
+ifeq ($(DEBUGBUILD), 1)
+	CFLAGS = -DDEBUG -g
+	CPPFLAGS = -DDEBUG -g
+endif
+
 
 # Source: https://github.com/sudar/Arduino-Makefile
 include Arduino.mk

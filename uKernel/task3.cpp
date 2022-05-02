@@ -11,7 +11,9 @@ void task3Func(void* arg) {
   digitalWrite(LEDPIN, HIGH);
 
   while (true) {
+#ifdef DEBUG
     Serial.println("In task3");
+#endif
     digitalWrite(LEDPIN, !digitalRead(LEDPIN));
 
     Sched_Yield();

@@ -10,8 +10,10 @@
 
 void idleTaskFunc(void* arg) {
   while (true) {
+#ifdef DEBUG
     //Serial.println("In idle");
     //delay(1000);
+#endif
     ;
   }
 };
@@ -56,8 +58,9 @@ void sortTasks() {
 }
 
 void Sched_Start() {
+#ifdef DEBUG
   Serial.println("Start");
-  Serial.flush();
+#endif
 
   sortTasks();
   currentStack = tasks[0]->getStackAddr();
@@ -83,7 +86,9 @@ void Sched_Add(Task* t) {
 
 
 void Sched_Dispatch() {
+#ifdef DEBUG
   //Serial.println("Dispatch");
+#endif
 
   Task* highestTaskPrio = tasks[0];
 
@@ -94,7 +99,9 @@ void Sched_Dispatch() {
 }
 
 int Sched_Schedule() {
+#ifdef DEBUG
   //Serial.println("Schedule");
+#endif
 
   idleTask->setReady(true);
 
@@ -124,7 +131,9 @@ int Sched_Schedule() {
 }
 
 void Sched_YieldDispatch() {
+#ifdef DEBUG
   Serial.println("Yield");
+#endif
 
   curr_task->setReady(false);
   curr_task->nextDeadline();
