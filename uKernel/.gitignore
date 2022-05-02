@@ -3,5 +3,8 @@ build-uno/
 uKernel/.pio/
 uKernel/.vscode/
 
+.vscode/
+.pio/
+
 cmake-build-uno/
 

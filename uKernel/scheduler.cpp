@@ -112,7 +112,6 @@ int Sched_Schedule() {
 
     if (t->isReady()) { // ready tasks are already scheduled
       ++readyCnt;
-      continue;
     }
 
     if (t->getDelay() > 0) {
