@@ -2,6 +2,7 @@
 
 #include "include/scheduler.h"
 #include "include/context.h"
+#include <stdlib.h>
 
 #define NT 20
 
@@ -14,9 +15,13 @@ void idleTaskFunc(void* arg) {
 };
 
 // tasks
-Task* tasks[NT]; // lower int => higher task priority
-static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 128, 1, 0, NT - 1);
-volatile unsigned int curr_task = NT;
+static Task* tasks[NT]; // lower index => higher task priority
+static int nTasks=0;
+
+//TODO: max_int
+static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 128, 1, 0, 999);
+volatile Task* curr_task;
+
 // stack
 volatile TCB_t* volatile currentStack = nullptr;
 
@@ -44,9 +49,16 @@ void Sched_Init() {
   Sched_Add(idleTask);
 }
 
+void sortTasks(){
+  qsort(tasks,nTasks,sizeof(Task*),compareTask);
+}
+
 void Sched_Start() {
   Serial.println("Start");
   Serial.flush();
+
+  sortTasks();
+  currentStack = tasks[0]->getStackAddr();
 
   Sched_SetupTimer();
 
@@ -62,37 +74,21 @@ void Sched_Start() {
   return;
 }
 
-int Sched_Add(Task* t) {
-  int prio = t->getPrio();
-  if (!tasks[prio]) {
-    tasks[prio] = t;
-    if (currentStack == nullptr || // first task (idle task)
-        (t->getDelay() == 0 && prio < curr_task)) { // or, not offset task with higher prio
-      // first task to run
-      currentStack = t->getStackAddr();
-      curr_task = prio;
-    }
-    return prio;
-  }
-  return -1;
+//TODO: assert nTasks < NT
+void Sched_Add(Task* t) {
+  tasks[nTasks++] = t;
 }
+
 
 void Sched_Dispatch() {
   Serial.println("Dispatch");
 
-  unsigned int prev_task = curr_task;
+  Task* highestTaskPrio = tasks[0];
 
-  for (unsigned int i = 0; i < prev_task; ++i) {
-    Task* t = tasks[i];
-    if (!t || !t->isReady())
-      continue;
-
-    t->setReady(false);
+  if(highestTaskPrio && highestTaskPrio != curr_task) {
     // run task
-    curr_task = i;
-    currentStack = t->getStackAddr(); // set current stack
-    return;
-
+    curr_task = highestTaskPrio;
+    currentStack = highestTaskPrio->getStackAddr(); // set current stack
     // delete one-shot
     // TODO
     /*
@@ -106,10 +102,10 @@ void Sched_Dispatch() {
 int Sched_Schedule() {
   Serial.println("Schedule");
 
-  tasks[NT - 1]->setReady(true);
+  idleTask->setReady(true);
 
-  int readyCnt = 1; // idle task is always ready
-  for (int i = 0; i < NT - 1; ++i) {
+  int readyCnt = 0;
+  for (int i = 0; i < nTasks; ++i) {
     Task* t = tasks[i];
     if (!t) continue;
 
@@ -126,7 +122,7 @@ int Sched_Schedule() {
       t->reset();
     }
   }
-
+  sortTasks();
   return readyCnt;
 }
 
@@ -135,7 +131,9 @@ void Sched_ManualCtxSwitch() {
   SAVE_CONTEXT();
 
   // dispatch
-  curr_task = NT; // can go to any task
+  curr_task->setReady(false);
+  curr_task->nextDeadline();
+  curr_task = nullptr; // can go to any task
   Sched_Dispatch();
 
   /* explicitly restore the execution context */

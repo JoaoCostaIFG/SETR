@@ -17,7 +17,7 @@ private:
   void* params;
 
   const unsigned int period;
-  const int prio;
+  unsigned int deadline;
 
   volatile unsigned int timeDelay;
   volatile bool ready;
@@ -36,7 +36,7 @@ private:
 
 public:
   Task(taskfunc_t run, void* params, unsigned int stackSize,
-       unsigned int period, unsigned int timeDelay, int prio);
+       unsigned int period, unsigned int timeDelay, int deadline);
 
   stack_t** getStackAddr() {
     return &(this->stackAddr);
@@ -59,17 +59,37 @@ public:
     this->timeDelay = this->period - 1;
   }
 
-  int getPrio() const {
-    return this->prio;
+  void nextDeadline() volatile {
+    this->deadline += this->period; 
+  }
+
+  int getDeadline() const {
+    return this->deadline;
   }
 
   bool isReady() const {
     return this->ready;
   }
 
-  void setReady(bool isReady) {
+  void setReady(bool isReady) volatile {
     this->ready = isReady;
   }
+
+  bool operator<(const Task &t1) const {
+    if(!this->ready && t1.isReady()) return false;
+    return this->deadline < t1.getDeadline();
+  }
+
+  bool operator==(const Task &t1) const {
+    return this->deadline == t1.getDeadline() && this->ready == t1.isReady();
+  }
+
+  bool operator>(const Task &t1) const {
+    if(!this->ready && t1.isReady()) return true;
+    return this->deadline > t1.getDeadline();
+  }
 };
+
+int compareTask(const void *a, const void *b);
 
 #endif // TASK_H

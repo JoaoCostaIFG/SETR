@@ -1,8 +1,8 @@
 #include "include/task.h"
 
 Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
-           unsigned int period, unsigned int timeDelay, int prio) :
-    run(run), params(params), period(period), prio(prio) {
+           unsigned int period, unsigned int timeDelay, int deadline) :
+    run(run), params(params), period(period), deadline(deadline) {
   this->timeDelay = timeDelay;
   this->ready = (timeDelay == 0);
   // alloc stack
@@ -90,4 +90,13 @@ void Task::initializeStack() {
   //usAddress = (POINTER_SIZE_TYPE) this->stackAddr;
   //this->push2stack((stack_t) ((usAddress >> 8) & (POINTER_SIZE_TYPE) 0x00ff));
   //*this->stackAddr = (stack_t) (usAddress & (POINTER_SIZE_TYPE) 0x00ff);
+}
+
+int compareTask(const void *a, const void *b){
+  Task* t1 = (Task*)a;
+  Task* t2 = (Task*)b;
+
+  if(*t1 < *t2) return -1;
+  if(*t1 == *t2) return 0;
+  if(*t1 > *t2) return 1;
 }

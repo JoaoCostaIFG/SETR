@@ -8,7 +8,7 @@ void Sched_Init();
 
 void Sched_Start();
 
-int Sched_Add(Task* t);
+void Sched_Add(Task* t);
 
 void Sched_Dispatch();
 
