@@ -6,6 +6,8 @@
 
 #define NT 20
 
+// TODO delete one-shot
+
 void idleTaskFunc(void* arg) {
   while (true) {
     //Serial.println("In idle");
@@ -16,7 +18,7 @@ void idleTaskFunc(void* arg) {
 
 // tasks
 static Task* tasks[NT]; // lower index => higher task priority
-static int nTasks=0;
+static int nTasks = 0;
 
 //TODO: max_int
 static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 128, 1, 0, 999);
@@ -49,8 +51,8 @@ void Sched_Init() {
   Sched_Add(idleTask);
 }
 
-void sortTasks(){
-  qsort(tasks,nTasks,sizeof(Task*),compareTask);
+void sortTasks() {
+  qsort(tasks, nTasks, sizeof(Task*), compareTask);
 }
 
 void Sched_Start() {
@@ -81,26 +83,18 @@ void Sched_Add(Task* t) {
 
 
 void Sched_Dispatch() {
-  Serial.println("Dispatch");
+  //Serial.println("Dispatch");
 
   Task* highestTaskPrio = tasks[0];
 
-  if(highestTaskPrio && highestTaskPrio != curr_task) {
-    // run task
+  if (highestTaskPrio && highestTaskPrio != curr_task) {
     curr_task = highestTaskPrio;
     currentStack = highestTaskPrio->getStackAddr(); // set current stack
-    // delete one-shot
-    // TODO
-    /*
-    if (t->getPeriod() == 0) {
-      tasks[i] = nullptr;
-    }
-     */
   }
 }
 
 int Sched_Schedule() {
-  Serial.println("Schedule");
+  //Serial.println("Schedule");
 
   idleTask->setReady(true);
 
@@ -122,38 +116,45 @@ int Sched_Schedule() {
       t->reset();
     }
   }
+
+  // sort priorities
   sortTasks();
+
   return readyCnt;
 }
 
-void Sched_ManualCtxSwitch() {
-  /* explicitly save the execution context */
-  SAVE_CONTEXT();
+void Sched_YieldDispatch() {
+  Serial.println("Yield");
 
-  // dispatch
   curr_task->setReady(false);
   curr_task->nextDeadline();
+  sortTasks();
   curr_task = nullptr; // can go to any task
-  Sched_Dispatch();
 
-  /* explicitly restore the execution context */
-  RESTORE_CONTEXT();
+  Sched_Dispatch();
+}
+
+void Sched_Yield() {
+  SAVE_CONTEXT(); // save the execution context
+
+  // dispatch
+  Sched_YieldDispatch();
+
+  RESTORE_CONTEXT(); // restore the execution context
 
   // the return from function call must be explicitly added
   __asm__ __volatile__ ( "ret" );
 }
 
 void Sched_CtxSwitch() {
-  /* explicitly save the execution context */
-  SAVE_CONTEXT();
+  SAVE_CONTEXT(); // save the execution context
 
   // sched + dispatch
   if (Sched_Schedule() > 1) {
     Sched_Dispatch();
   }
 
-  /* explicitly restore the execution context */
-  RESTORE_CONTEXT();
+  RESTORE_CONTEXT(); // restore the execution context
 
   // the return from function call must be explicitly added
   __asm__ __volatile__ ( "ret" );

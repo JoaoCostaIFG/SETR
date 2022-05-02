@@ -1,6 +1,7 @@
 #include <Arduino.h>
 
 #include "include/task4.h"
+#include "include/scheduler.h"
 
 #define LEDPIN 10
 
@@ -9,5 +10,10 @@ void task4Func(void* arg) {
   pinMode(LEDPIN, OUTPUT);
   digitalWrite(LEDPIN, HIGH);
 
-  digitalWrite(LEDPIN, !digitalRead(LEDPIN));
+  while (true) {
+    Serial.println("In task4");
+    digitalWrite(LEDPIN, !digitalRead(LEDPIN));
+
+    Sched_Yield();
+  }
 }

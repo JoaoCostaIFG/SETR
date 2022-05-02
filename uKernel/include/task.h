@@ -15,18 +15,15 @@ class Task {
 private:
   taskfunc_t run;
   void* params;
-
   const unsigned int period;
-  unsigned int deadline;
-
   volatile unsigned int timeDelay;
+  volatile unsigned int deadline;
   volatile bool ready;
   /**
    * The task's stack
    * The stack where we save the task context for context switching.
    */
   stack_t* stack;
-
   stack_t* stackAddr;
 
   void inline push2stack(stack_t pushable) __attribute__((always_inline));
@@ -36,7 +33,10 @@ private:
 
 public:
   Task(taskfunc_t run, void* params, unsigned int stackSize,
-       unsigned int period, unsigned int timeDelay, int deadline);
+       unsigned int period, unsigned int timeDelay, unsigned int deadline);
+
+  Task(taskfunc_t run, void* params, unsigned int stackSize,
+       unsigned int period, unsigned int timeDelay);
 
   stack_t** getStackAddr() {
     return &(this->stackAddr);
@@ -60,10 +60,10 @@ public:
   }
 
   void nextDeadline() volatile {
-    this->deadline += this->period; 
+    this->deadline += this->period;
   }
 
-  int getDeadline() const {
+  unsigned int getDeadline() const {
     return this->deadline;
   }
 
@@ -75,21 +75,23 @@ public:
     this->ready = isReady;
   }
 
-  bool operator<(const Task &t1) const {
-    if(!this->ready && t1.isReady()) return false;
-    return this->deadline < t1.getDeadline();
+  bool operator<(const Task& o) const {
+    if (!this->ready && o.isReady()) return false;
+    if (this->ready && !o.isReady()) return true;
+    return this->deadline < o.getDeadline();
   }
 
-  bool operator==(const Task &t1) const {
-    return this->deadline == t1.getDeadline() && this->ready == t1.isReady();
+  bool operator==(const Task& o) const {
+    return this->deadline == o.getDeadline() && this->ready == o.isReady();
   }
 
-  bool operator>(const Task &t1) const {
-    if(!this->ready && t1.isReady()) return true;
-    return this->deadline > t1.getDeadline();
+  bool operator>(const Task& o) const {
+    if (!this->ready && o.isReady()) return true;
+    if (this->ready && !o.isReady()) return false;
+    return this->deadline > o.getDeadline();
   }
 };
 
-int compareTask(const void *a, const void *b);
+int compareTask(const void* a, const void* b);
 
 #endif // TASK_H

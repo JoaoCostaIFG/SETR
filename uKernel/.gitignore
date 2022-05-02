@@ -2,3 +2,6 @@ bin/
 build-uno/
 uKernel/.pio/
 uKernel/.vscode/
+
+cmake-build-uno/
+

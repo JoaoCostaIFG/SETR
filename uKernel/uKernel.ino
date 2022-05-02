@@ -6,10 +6,10 @@
 #include "include/task3.h"
 #include "include/task4.h"
 
-// static Task* task1 = new Task(&task1Func, (void*) 0, 128, 3, 0, 3);
-static Task* task2 = new Task(&task2Func, (void*) 0, 128, 3, 0, 3);
-//static Task* task3 = new Task(&task3Func, nullptr, 1, 0, 2);
-//static Task* task4 = new Task(&task4Func, nullptr, 1, 0, 3);
+static Task* task1 = new Task(&task1Func, (void*) 0, 128, 3, 2, 3);
+static Task* task2 = new Task(&task2Func, (void*) 0, 128, 1, 0, 1);
+static Task* task3 = new Task(&task3Func, (void*) 0, 128, 1, 0, 1);
+//static Task* task4 = new Task(&task4Func, (void*) 0, 128, 1, 0, 1);
 
 ISR(SCHEDULER_ISR, ISR_NAKED) __attribute__ ((hot, flatten));
 
@@ -30,9 +30,9 @@ void setup() {
     ;
   }
 
-  // Sched_Add(task1);
+  Sched_Add(task1);
   Sched_Add(task2);
-  //Sched_Add(task3);
+  Sched_Add(task3);
 
   Sched_Start();
 }

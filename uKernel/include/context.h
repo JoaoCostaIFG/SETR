@@ -66,7 +66,7 @@ extern volatile TCB_t* volatile currentStack;
                                 "st     x+, __tmp_reg__                         \n\t"   \
                                 "in     __tmp_reg__, __SP_H__                   \n\t"   \
                                 "st     x+, __tmp_reg__                         \n\t"   \
-                             );
+                             )
 
 /*
  * Opposite to SAVE_CONTEXT().  Interrupts will have been disabled during
@@ -113,6 +113,6 @@ extern volatile TCB_t* volatile currentStack;
                                 "pop    __tmp_reg__                             \n\t"   \
                                 "out    __SREG__, __tmp_reg__                   \n\t"   \
                                 "pop    __tmp_reg__                             \n\t"   \
-                             );
+                             )
 
 #endif // REGS_H
