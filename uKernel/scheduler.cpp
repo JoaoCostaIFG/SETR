@@ -127,8 +127,10 @@ int Sched_Schedule() {
     if (t->getDelay() > 0) {
       t->tick();
     } else {
-      ++readyCnt;
-      t->setReady(true);
+      if (t->getState() != BLOCKED) {
+        ++readyCnt;
+        t->setState(READY);
+      }
       t->reset();
     }
   }
@@ -172,7 +174,7 @@ void Sched_YieldDispatch() {
 
   assert(currTask->areCanariesIntact());
 
-  currTask->setReady(false);
+  currTask->setState(NOT_READY);
   currTask->nextDeadline();
   Sched_SortTasks();
   currTask = nullptr; // can go to any task
@@ -189,5 +191,22 @@ void Sched_Yield() {
   RESTORE_CONTEXT(); // restore the execution context
 
   // the return from function call must be explicitly added
+  __asm__ __volatile__ ( "ret" );
+}
+
+void Sched_BlockDispatch() {
+  currTask->setState(BLOCKED);
+  Sched_SortTasks();
+  currTask = nullptr;
+  Sched_Dispatch();
+}
+
+void Sched_BlockTask() {
+  SAVE_CONTEXT(); // save the execution context
+
+  Sched_BlockDispatch();
+
+  RESTORE_CONTEXT(); // restore the execution context
+
   __asm__ __volatile__ ( "ret" );
 }

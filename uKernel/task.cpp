@@ -18,8 +18,8 @@ Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
            unsigned int period, unsigned int timeDelay, unsigned int deadline) :
     run(run), params(params), period(period), deadline(deadline) {
   this->timeDelay = timeDelay;
-  this->ready = (timeDelay == 0);
-  if (this->ready) // set delay for next period
+  this->state = (timeDelay == 0) ? READY : NOT_READY;
+  if (this->state == READY) // set delay for next period
     this->reset();
 
   // alloc function stack + space for canaries + space for context registers
@@ -47,7 +47,7 @@ Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
   this->stackAddr = this->botStackAddr; // start at the beginning of the stack
   this->initializeStack();
 
-  static_assert(sizeof(*this) == 19,
+  static_assert(sizeof(*this) == 20,
                 "The task's data is exceeding the calculated optimal size. Did you add a new data member?");
 }
 

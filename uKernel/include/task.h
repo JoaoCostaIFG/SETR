@@ -7,6 +7,13 @@ typedef byte stack_t;
 
 typedef void (* taskfunc_t)(void*);
 
+typedef enum {
+  READY,
+  BLOCKED,
+  NOT_READY,
+  WAITING
+} state_t;
+
 class Task {
 private:
   /** The task's code */
@@ -28,7 +35,7 @@ private:
   const unsigned int period;
   volatile unsigned int timeDelay;
   volatile unsigned int deadline;
-  volatile bool ready;
+  volatile state_t state;
 
   const static stack_t canary[];
 
@@ -93,11 +100,15 @@ public:
   }
 
   bool isReady() const {
-    return this->ready;
+    return this->state == READY;
   }
 
-  void setReady(bool isReady) volatile {
-    this->ready = isReady;
+  void setState(state_t state) volatile {
+    this->state = state;
+  }
+
+  state_t getState() {
+    return this->state;
   }
 
   /*
@@ -105,22 +116,22 @@ public:
    * for the deadline comparison part.
    */
   bool operator<(const Task &o) const {
-    if (!this->ready && o.isReady()) return false;
-    if (this->ready && !o.isReady()) return true;
-    //return this->deadline < o.getDeadline();
-    return ((int) (this->deadline - o.getDeadline())) < 0;
+    if (!this->isReady() && o.isReady()) return false;
+    if (this->isReady() && !o.isReady()) return true;
+
+    return ((int) (this->getDeadline() - o.getDeadline())) < 0;
   }
 
   bool operator==(const Task &o) const {
-    return this->ready == o.isReady() && //this->deadline == o.getDeadline();
-           ((int) (this->deadline - o.getDeadline())) == 0;
+    return this->isReady() == o.isReady() &&
+           ((int) (this->getDeadline() - o.getDeadline())) == 0;
   }
 
   bool operator>(const Task &o) const {
-    if (!this->ready && o.isReady()) return true;
-    if (this->ready && !o.isReady()) return false;
-    //return this->deadline > o.getDeadline();
-    return ((int) (this->deadline - o.getDeadline())) > 0;
+    if (!this->isReady() && o.isReady()) return true;
+    if (this->isReady() && !o.isReady()) return false;
+
+    return ((int) (this->getDeadline() - o.getDeadline())) > 0;
   }
 };
 
