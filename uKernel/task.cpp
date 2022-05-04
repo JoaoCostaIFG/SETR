@@ -5,14 +5,20 @@ Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
     run(run), params(params), period(period), deadline(deadline) {
   this->timeDelay = timeDelay;
   this->ready = (timeDelay == 0);
+  if (this->ready) // set delay for next period
+    this->reset();
+
   // alloc stack
   size_t stackSizeBytes = stackSize * sizeof(stack_t);
   this->stack = (stack_t*) malloc(stackSizeBytes);
   memset(this->stack, 0, stackSizeBytes);
+
   // get stack top addr
   this->stackAddr = &(this->stack[stackSize - (uint16_t) 1]);
   this->stackAddr = (stack_t*) (((POINTER_SIZE_TYPE)
   this->stackAddr) &~((POINTER_SIZE_TYPE)BYTE_ALIGNMENT_MASK));
+
+  // initialize task's stack
   this->initializeStack();
 }
 

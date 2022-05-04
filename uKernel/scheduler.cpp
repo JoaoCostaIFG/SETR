@@ -1,9 +1,12 @@
 #include <Arduino.h>
+#include <limits.h>
 
 #include "include/scheduler.h"
 #include "include/context.h"
-#include <stdlib.h>
+#include "include/task.h"
 
+// TODO periods can't be higher than this number
+#define MAXTIME UINT_MAX/2
 #define NT 20
 
 // TODO delete one-shot
@@ -12,20 +15,18 @@ void idleTaskFunc(void* arg) {
   while (true) {
 #ifdef DEBUG
     //Serial.println("In idle");
-    //delay(1000);
 #endif
+    //delay(1000);
     ;
   }
 };
 
 // tasks
-static Task* tasks[NT]; // lower index => higher task priority
 static int nTasks = 0;
-
-//TODO: max_int
-static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 128, 1, 0, 999);
-volatile Task* curr_task;
-
+static Task* tasks[NT]; // lower index => higher task priority
+static volatile Task* curr_task;
+// idle task
+static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 64);
 // stack
 volatile TCB_t* volatile currentStack = nullptr;
 
@@ -37,10 +38,10 @@ void Sched_SetupTimer() {
   SCHEDULER_TCCRXB = 0;
   SCHEDULER_TCNT = 0;
   // freq (s) = CMR / (clock / prescaler) = CMR / (16MHz / prescale).
-  SCHEDULER_OCRXA = 31250;                // Compare Match Register (CMR)
+  SCHEDULER_OCRXA = 31250;                  // Compare Match Register (CMR)
   SCHEDULER_TCCRXB |= SCHEDULER_PRESCALER;  // 256 prescaler
   SCHEDULER_TCCRXB |= (1 << WGM12);         // CTC mode
-  SCHEDULER_TIMSK |= (1 << OCIE1A);        // enable timer compare interrupt
+  SCHEDULER_TIMSK |= (1 << OCIE1A);         // enable timer compare interrupt
 
   // TODO ?
   interrupts();
@@ -53,8 +54,13 @@ void Sched_Init() {
   Sched_Add(idleTask);
 }
 
-void sortTasks() {
+void Sched_SortTasks() {
   qsort(tasks, nTasks, sizeof(Task*), compareTask);
+}
+
+void Sched_SetCurrTask(Task* newCurrTask) {
+  curr_task = newCurrTask;
+  currentStack = newCurrTask->getStackAddr(); // set current stack
 }
 
 void Sched_Start() {
@@ -62,8 +68,9 @@ void Sched_Start() {
   Serial.println("Start");
 #endif
 
-  sortTasks();
-  currentStack = tasks[0]->getStackAddr();
+  Sched_SortTasks();
+  Task* firstTask = tasks[0];
+  Sched_SetCurrTask(firstTask);
 
   Sched_SetupTimer();
 
@@ -84,26 +91,10 @@ void Sched_Add(Task* t) {
   tasks[nTasks++] = t;
 }
 
-
-void Sched_Dispatch() {
-#ifdef DEBUG
-  //Serial.println("Dispatch");
-#endif
-
-  Task* highestTaskPrio = tasks[0];
-
-  if (highestTaskPrio && highestTaskPrio != curr_task) {
-    curr_task = highestTaskPrio;
-    currentStack = highestTaskPrio->getStackAddr(); // set current stack
-  }
-}
-
 int Sched_Schedule() {
 #ifdef DEBUG
   //Serial.println("Schedule");
 #endif
-
-  idleTask->setReady(true);
 
   int readyCnt = 0;
   for (int i = 0; i < nTasks; ++i) {
@@ -113,6 +104,11 @@ int Sched_Schedule() {
     if (t->isReady()) { // ready tasks are already scheduled
       ++readyCnt;
     }
+
+    Serial.print(t->isReady() ? "ready " : "not ready ");
+    Serial.print(t->getDeadline());
+    Serial.print(" ");
+    Serial.println(t->getDelay());
 
     if (t->getDelay() > 0) {
       t->tick();
@@ -124,11 +120,37 @@ int Sched_Schedule() {
   }
 
   // sort priorities
-  sortTasks();
+  Sched_SortTasks();
 
   return readyCnt;
 }
 
+void Sched_Dispatch() {
+#ifdef DEBUG
+  //Serial.println("Dispatch");
+#endif
+
+  Task* nextTask = tasks[0];
+  if (nextTask && nextTask->isReady() && nextTask != curr_task) {
+    Sched_SetCurrTask(nextTask);
+  }
+}
+
+void Sched_CtxSwitch() {
+  SAVE_CONTEXT(); // save the execution context
+
+  // sched + dispatch
+  if (Sched_Schedule() > 1) {
+    Sched_Dispatch();
+  }
+
+  RESTORE_CONTEXT(); // restore the execution context
+
+  // the return from function call must be explicitly added
+  __asm__ __volatile__ ( "ret" );
+}
+
+// Yielding
 void Sched_YieldDispatch() {
 #ifdef DEBUG
   Serial.println("Yield");
@@ -136,7 +158,7 @@ void Sched_YieldDispatch() {
 
   curr_task->setReady(false);
   curr_task->nextDeadline();
-  sortTasks();
+  Sched_SortTasks();
   curr_task = nullptr; // can go to any task
 
   Sched_Dispatch();
@@ -147,20 +169,6 @@ void Sched_Yield() {
 
   // dispatch
   Sched_YieldDispatch();
-
-  RESTORE_CONTEXT(); // restore the execution context
-
-  // the return from function call must be explicitly added
-  __asm__ __volatile__ ( "ret" );
-}
-
-void Sched_CtxSwitch() {
-  SAVE_CONTEXT(); // save the execution context
-
-  // sched + dispatch
-  if (Sched_Schedule() > 1) {
-    Sched_Dispatch();
-  }
 
   RESTORE_CONTEXT(); // restore the execution context
 

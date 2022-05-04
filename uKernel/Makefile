@@ -13,10 +13,13 @@ BOARD_TAG    = uno
 ARDUINO_LIBS =
 
 
+CFLAGS = -Wall
+CPPFLAGS = -Wall
+
 DEBUGBUILD ?= 0
 ifeq ($(DEBUGBUILD), 1)
-	CFLAGS = -DDEBUG -g
-	CPPFLAGS = -DDEBUG -g
+	CFLAGS += -DDEBUG -ggdb3
+	CPPFLAGS += -DDEBUG -ggdb3
 endif
 
 
