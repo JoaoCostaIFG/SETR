@@ -6,7 +6,6 @@
 #include "include/assert.h"
 #include "include/context.h"
 #include "include/task.h"
-#include "include/mutex.h"
 
 // TODO periods have to be lower than this number
 #define MAXTIMEDIFF UINT_MAX/2
@@ -21,7 +20,7 @@ void idleTaskFunc(void* arg);
 // tasks
 static int nTasks = 0;
 static Task* tasks[NT]; // lower index => higher task priority
-static volatile Task* currTask;
+volatile Task* currTask;
 // idle task
 static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 80, 1, 0, MAXTIMEDIFF - 1);
 // stack
@@ -37,6 +36,17 @@ void idleTaskFunc(void *arg) {
     //delay(1000);
     ;
   }
+}
+
+Mutex* Sched_CreateMutex() {
+  // TODO make this actually good
+  for (int i = 0; i < NM; ++i) {
+    if (mutexes[i] != nullptr) continue;
+    auto mut = new Mutex();
+    mutexes[i] = mut;
+    return mut;
+  }
+  return nullptr;
 }
 
 void Sched_SetupTimer() {

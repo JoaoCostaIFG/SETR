@@ -7,7 +7,6 @@
 #define OFF     HIGH
 #define ON      LOW
 
-
 void task1Func(void* arg) {
   // set pin as output
   pinMode(LEDPIN, OUTPUT);
@@ -17,7 +16,9 @@ void task1Func(void* arg) {
 #ifdef DEBUG
     Serial.println("In task1");
 #endif
+    mutex1->lock();
     digitalWrite(LEDPIN, !digitalRead(LEDPIN));
+    mutex1->unlock();
 
     Sched_Yield(); // yield
   }

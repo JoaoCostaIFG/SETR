@@ -9,19 +9,21 @@ extern volatile Task* currTask;
 
 class Mutex {
 private:
-    Task* holder;
-    Task* pretenders[N_PRETS];
+  volatile Task* holder;
+  volatile Task* pretenders[N_PRETS];
 
+  bool isLocked();
 
-    bool isLocked();
-    int insertPretender(Task* pretender);
-    void readyPretenders();
+  int insertPretender(volatile Task* pretender);
+
+  void readyPretenders();
 
 public:
-    Mutex();
+  Mutex();
 
-    int lock();
-    int unlock();
+  int lock();
+
+  int unlock();
 };
 
 

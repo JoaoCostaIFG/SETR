@@ -2,7 +2,10 @@
 #define UKERNEL_SCHEDULER_H
 
 #include "scheduler_isr.h"
+#include "mutex.h"
 #include "task.h"
+
+Mutex* Sched_CreateMutex();
 
 void Sched_Init();
 

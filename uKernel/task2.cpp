@@ -3,7 +3,7 @@
 #include "include/task2.h"
 #include "include/scheduler.h"
 
-#define LEDPIN 12
+#define LEDPIN  12
 #define OFF     HIGH
 #define ON      LOW
 
@@ -16,7 +16,9 @@ void task2Func(void* arg) {
 #ifdef DEBUG
     Serial.println("In task2");
 #endif
+    mutex1->lock();
     digitalWrite(LEDPIN, !digitalRead(LEDPIN));
+    mutex1->unlock();
 
     Sched_Yield(); // yield
   }

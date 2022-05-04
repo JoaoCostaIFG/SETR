@@ -5,13 +5,12 @@
 #include "include/task3.h"
 #include "include/task4.h"
 
-static Task* task1 = new Task(&task1Func, (void*) 0, 200, 3, 0, 3);
-static Task* task2 = new Task(&task2Func, (void*) 0, 200, 3, 0, 3);
-static Task* task3 = new Task(&task3Func, (void*) 0, 200, 3, 0, 3);
-//static Task* task4 = new Task(&task4Func, (void*) 0, 36, 1, 0, 1);
+Mutex* mutex1 = Sched_CreateMutex();
 
-Mutex* mutex1;
-// Mutex* mutex2;
+static Task* task1 = new Task(&task1Func, (void*) 0, 43, 3, 0, 3);
+static Task* task2 = new Task(&task2Func, (void*) 0, 43, 3, 0, 3);
+//static Task* task3 = new Task(&task3Func, (void*) 0, 200, 3, 0, 3);
+//static Task* task4 = new Task(&task4Func, (void*) 0, 43, 1, 0, 1);
 
 ISR(SCHEDULER_ISR, ISR_NAKED) __attribute__ ((hot, flatten));
 
@@ -38,14 +37,16 @@ void setup() {
 
   Sched_Add(task1);
   Sched_Add(task2);
-  Sched_Add(task3);
+  //Sched_Add(task3);
 
   Sched_Start();
 
   free(task1);
   free(task2);
-  free(task3);
+  //free(task3);
   //free(task4);
+
+  free(mutex1);
 }
 
 void loop() {
