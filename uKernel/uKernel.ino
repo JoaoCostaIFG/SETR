@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 #include "include/scheduler.h"
 #include "include/task1.h"
 #include "include/task2.h"
