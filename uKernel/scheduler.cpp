@@ -5,11 +5,22 @@
 #include "include/context.h"
 #include "include/task.h"
 
-// TODO periods can't be higher than this number
-#define MAXTIME UINT_MAX/2
+// TODO periods have to be lower than this number
+#define MAXTIMEDIFF UINT_MAX/2
 #define NT 20
 
 // TODO delete one-shot
+
+void idleTaskFunc(void* arg);
+
+// tasks
+static int nTasks = 0;
+static Task* tasks[NT]; // lower index => higher task priority
+static volatile Task* curr_task;
+// idle task
+static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 128, 1, 0, MAXTIMEDIFF - 1);
+// stack
+volatile TCB_t* volatile currentStack = nullptr;
 
 void idleTaskFunc(void* arg) {
   while (true) {
@@ -19,16 +30,7 @@ void idleTaskFunc(void* arg) {
     //delay(1000);
     ;
   }
-};
-
-// tasks
-static int nTasks = 0;
-static Task* tasks[NT]; // lower index => higher task priority
-static volatile Task* curr_task;
-// idle task
-static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 64, 1, 0, 999);
-// stack
-volatile TCB_t* volatile currentStack = nullptr;
+}
 
 void Sched_SetupTimer() {
   noInterrupts();
