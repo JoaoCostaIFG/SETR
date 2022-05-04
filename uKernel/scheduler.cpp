@@ -6,10 +6,13 @@
 #include "include/assert.h"
 #include "include/context.h"
 #include "include/task.h"
+#include "include/mutex.h"
 
 // TODO periods have to be lower than this number
 #define MAXTIMEDIFF UINT_MAX/2
 #define NT 20
+
+#define NM 20 // number of mutexes
 
 // TODO delete one-shot
 
@@ -24,8 +27,10 @@ static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 80, 1, 0, MAXTIMEDIFF
 // stack
 volatile TCB_t* volatile currStack = nullptr;
 
-void idleTaskFunc(void* arg) {
-  while (true) {
+static Mutex* mutexes[NM];
+
+void idleTaskFunc(void *arg) {
+    while (true) {
 #ifdef DEBUG
     //Serial.println("In idle");
 #endif

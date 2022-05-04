@@ -1,4 +1,5 @@
 #include "include/scheduler.h"
+#include "include/mutex.h"
 #include "include/task1.h"
 #include "include/task2.h"
 #include "include/task3.h"
@@ -8,6 +9,9 @@ static Task* task1 = new Task(&task1Func, (void*) 0, 36, 3, 0, 3);
 static Task* task2 = new Task(&task2Func, (void*) 0, 36, 3, 0, 3);
 static Task* task3 = new Task(&task3Func, (void*) 0, 36, 3, 0, 3);
 //static Task* task4 = new Task(&task4Func, (void*) 0, 36, 1, 0, 1);
+
+Mutex* mutex1;
+// Mutex* mutex2;
 
 ISR(SCHEDULER_ISR, ISR_NAKED) __attribute__ ((hot, flatten));
 

@@ -7,6 +7,7 @@
 #define OFF     HIGH
 #define ON      LOW
 
+
 void task1Func(void* arg) {
   // set pin as output
   pinMode(LEDPIN, OUTPUT);
