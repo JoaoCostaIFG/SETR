@@ -10,7 +10,7 @@
 void task3Func(void* arg) {
   //set pin as output
   pinMode(LEDPIN, OUTPUT);
-  digitalWrite(LEDPIN, OFF);
+  digitalWrite(LEDPIN, ON);
 
   while (true) {
 #ifdef DEBUG
@@ -18,6 +18,6 @@ void task3Func(void* arg) {
 #endif
     digitalWrite(LEDPIN, !digitalRead(LEDPIN));
 
-    Sched_Yield();
+    Sched_Yield(); // yield
   }
 }

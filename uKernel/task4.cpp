@@ -4,11 +4,13 @@
 #include "include/scheduler.h"
 
 #define LEDPIN 10
+#define OFF     HIGH
+#define ON      LOW
 
 void task4Func(void* arg) {
   // set pin as output
   pinMode(LEDPIN, OUTPUT);
-  digitalWrite(LEDPIN, HIGH);
+  digitalWrite(LEDPIN, ON);
 
   while (true) {
 #ifdef DEBUG
@@ -16,6 +18,6 @@ void task4Func(void* arg) {
 #endif
     digitalWrite(LEDPIN, !digitalRead(LEDPIN));
 
-    Sched_Yield();
+    Sched_Yield(); // yield
   }
 }
