@@ -26,7 +26,7 @@ static int nTasks = 0;
 static Task* tasks[NT]; // lower index => higher task priority
 static volatile Task* curr_task;
 // idle task
-static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 64);
+static Task* idleTask = new Task(&idleTaskFunc, (void*) 0, 64, 1, 0, 999);
 // stack
 volatile TCB_t* volatile currentStack = nullptr;
 
@@ -54,6 +54,23 @@ void Sched_Init() {
   Sched_Add(idleTask);
 }
 
+int compareTask(const void* a, const void* b) {
+  Task* t1 = *((Task**) a);
+  Task* t2 = *((Task**) b);
+
+  // push idle task to the end of the ready part (between the ready and not-ready parts)
+  if (t1 == idleTask) return t2->isReady() ? 1 : -1;
+  if (t2 == idleTask) return t1->isReady() ? -1 : 1;
+
+  if (*t1 < *t2) return -1;
+  if (*t1 > *t2) return 1;
+
+  // this is done to enforce order between tasks with the same deadline after sorting.
+  // if this was not done, some tasks, even though they had the same prio, could preempt tasks with the
+  // same piority, which is not desired
+  return (size_t) t1 < (size_t) t2;
+}
+
 void Sched_SortTasks() {
   qsort(tasks, nTasks, sizeof(Task*), compareTask);
 }
@@ -69,8 +86,7 @@ void Sched_Start() {
 #endif
 
   Sched_SortTasks();
-  Task* firstTask = tasks[0];
-  Sched_SetCurrTask(firstTask);
+  Sched_SetCurrTask(tasks[0]);
 
   Sched_SetupTimer();
 
@@ -108,7 +124,9 @@ int Sched_Schedule() {
     Serial.print(t->isReady() ? "ready " : "not ready ");
     Serial.print(t->getDeadline());
     Serial.print(" ");
-    Serial.println(t->getDelay());
+    Serial.print(t->getDelay());
+    Serial.print(" ");
+    Serial.println(t->getPeriod());
 
     if (t->getDelay() > 0) {
       t->tick();

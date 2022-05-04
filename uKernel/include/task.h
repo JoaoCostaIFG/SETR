@@ -26,8 +26,6 @@ private:
   stack_t* stack;
   stack_t* stackAddr;
 
-  bool isIdleTask = false;
-
   void inline push2stack(stack_t pushable) __attribute__((always_inline));
 
   // Initialize stack as if _run_ was called and immediately interrupted
@@ -39,16 +37,6 @@ public:
 
   Task(taskfunc_t run, void* params, unsigned int stackSize,
        unsigned int period, unsigned int timeDelay);
-
-  // for idle task
-  Task(taskfunc_t run, void* params, unsigned int stackSize) :
-    Task(run, params, stackSize, 9999, 0) {
-    this->isIdleTask = true;
-  }
-
-  bool isIdle() const {
-    return isIdleTask;
-  }
 
   stack_t** getStackAddr() {
     return &(this->stackAddr);
@@ -97,23 +85,21 @@ public:
   bool operator<(const Task& o) const {
     if (!this->ready && o.isReady()) return false;
     if (this->ready && !o.isReady()) return true;
-    return this->deadline < o.getDeadline();
-    //return ((int) (this->deadline - o.getDeadline())) < 0;
+    //return this->deadline < o.getDeadline();
+    return ((int) (this->deadline - o.getDeadline())) < 0;
   }
 
   bool operator==(const Task& o) const {
-    return this->ready == o.isReady() && this->deadline == o.getDeadline();
-           //((int) (this->deadline - o.getDeadline())) == 0;
+    return this->ready == o.isReady() && //this->deadline == o.getDeadline();
+           ((int) (this->deadline - o.getDeadline())) == 0;
   }
 
   bool operator>(const Task& o) const {
     if (!this->ready && o.isReady()) return true;
     if (this->ready && !o.isReady()) return false;
-    return this->deadline > o.getDeadline();
-    //return ((int) (this->deadline - o.getDeadline())) > 0;
+    //return this->deadline > o.getDeadline();
+    return ((int) (this->deadline - o.getDeadline())) > 0;
   }
 };
-
-int compareTask(const void* a, const void* b);
 
 #endif // TASK_H

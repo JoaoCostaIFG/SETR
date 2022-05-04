@@ -101,16 +101,3 @@ void Task::initializeStack() {
   //this->push2stack((stack_t) ((usAddress >> 8) & (POINTER_SIZE_TYPE) 0x00ff));
   //*this->stackAddr = (stack_t) (usAddress & (POINTER_SIZE_TYPE) 0x00ff);
 }
-
-int compareTask(const void* a, const void* b) {
-  Task* t1 = *((Task**) a);
-  Task* t2 = *((Task**) b);
-
-  if (*t1 < *t2) return -1;
-  if (*t1 > *t2) return 1;
-  
-  // this is done to enforce order between tasks with the same deadline after sorting.
-  // if this was not done, some tasks, even though they had the same prio, could preempt tasks with the 
-  // same piority, which is not desired
-  return (size_t)t1 < (size_t)t2; 
-}
