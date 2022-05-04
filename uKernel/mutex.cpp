@@ -3,9 +3,7 @@
 #include "include/mutex.h"
 #include "include/scheduler.h"
 
-Mutex::Mutex() {
-  this->holder = nullptr;
-}
+Mutex::Mutex() { this->holder = nullptr; }
 
 int Mutex::lock() {
   noInterrupts();
@@ -31,7 +29,6 @@ int Mutex::lock() {
   return this->lock();
 }
 
-
 int Mutex::unlock() {
   noInterrupts();
 
@@ -47,12 +44,9 @@ int Mutex::unlock() {
   return ret;
 }
 
+bool Mutex::isLocked() { return this->holder != nullptr; }
 
-bool Mutex::isLocked() {
-  return this->holder != nullptr;
-}
-
-int Mutex::insertPretender(volatile Task* pretender) {
+int Mutex::insertPretender(volatile Task *pretender) {
   for (int i = 0; i < N_PRETS; ++i) {
     if (this->pretenders[i] == nullptr) {
       this->pretenders[i] = pretender;

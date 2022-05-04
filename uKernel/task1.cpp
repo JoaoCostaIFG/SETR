@@ -1,13 +1,13 @@
 #include <Arduino.h>
 
-#include "include/task1.h"
 #include "include/scheduler.h"
+#include "include/task1.h"
 
-#define LEDPIN  13
-#define OFF     HIGH
-#define ON      LOW
+#define LEDPIN 13
+#define OFF HIGH
+#define ON LOW
 
-void task1Func(void* arg) {
+void task1Func(void *arg) {
   // set pin as output
   pinMode(LEDPIN, OUTPUT);
   digitalWrite(LEDPIN, ON);

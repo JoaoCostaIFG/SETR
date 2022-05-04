@@ -3,8 +3,8 @@
 
 #include "mutex.h"
 
-extern Mutex* mutex1;
+extern Mutex *mutex1;
 
-void task1Func(void* arg);
+void task1Func(void *arg);
 
 #endif /* ifndef TASK_1 */

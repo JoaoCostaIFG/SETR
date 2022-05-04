@@ -13,7 +13,9 @@
 void assertFailed();
 
 /** If the given test fails, call assertFailed */
-#define assert(test) if (!(test)) assertFailed()
+#define assert(test)                                                           \
+  if (!(test))                                                                 \
+  assertFailed()
 
 #else
 

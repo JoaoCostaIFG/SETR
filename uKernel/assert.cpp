@@ -2,10 +2,10 @@
 
 #include "include/assert.h"
 
-#define ON            HIGH
-#define OFF           LOW
-#define SHORT_BLINK   300
-#define LONG_BLINK    SHORT_BLINK * 3
+#define ON HIGH
+#define OFF LOW
+#define SHORT_BLINK 300
+#define LONG_BLINK SHORT_BLINK * 3
 
 void assertFailed() {
   noInterrupts();

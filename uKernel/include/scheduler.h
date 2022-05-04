@@ -1,27 +1,27 @@
 #ifndef UKERNEL_SCHEDULER_H
 #define UKERNEL_SCHEDULER_H
 
-#include "scheduler_isr.h"
 #include "mutex.h"
+#include "scheduler_isr.h"
 #include "task.h"
 
-Mutex* Sched_CreateMutex();
+Mutex *Sched_CreateMutex();
 
 void Sched_Init();
 
 void Sched_Start();
 
-int Sched_Add(Task* t);
+int Sched_Add(Task *t);
 
 void Sched_Dispatch();
 
 int Sched_Schedule();
 
 // the same as CtxSwitch but without the scheduler call (it's not a tick)
-void Sched_Yield() __attribute__(( hot, naked ));
+void Sched_Yield() __attribute__((hot, naked));
 
-void Sched_CtxSwitch() __attribute__(( hot, flatten, naked ));
+void Sched_CtxSwitch() __attribute__((hot, flatten, naked));
 
-void Sched_BlockTask() __attribute__(( naked ));
+void Sched_BlockTask() __attribute__((naked));
 
-#endif //UKERNEL_SCHEDULER_H
+#endif // UKERNEL_SCHEDULER_H
