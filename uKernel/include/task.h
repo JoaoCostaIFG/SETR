@@ -3,10 +3,6 @@
 
 #include <Arduino.h>
 
-#define POINTER_SIZE_TYPE     uint16_t
-#define BYTE_ALIGNMENT        1
-#define BYTE_ALIGNMENT_MASK   ( 0x0000 )
-
 typedef byte stack_t;
 
 typedef void (* taskfunc_t)(void*);
@@ -23,12 +19,19 @@ private:
    * The task's stack
    * The stack where we save the task context for context switching.
    */
-  stack_t* stack;
   stack_t* stackAddr;
+  stack_t* botStackAddr;
+  stack_t* topStackAddr;
+
+  const static stack_t canary[];
 
   void inline push2stack(stack_t pushable) __attribute__((always_inline));
 
-  // Initialize stack as if _run_ was called and immediately interrupted
+  /**
+   * Initialize stack as if _run_ was called and immediately interrupted.
+   * Also insert stack canaries.
+   * The stack grows downwards.
+   */
   void initializeStack();
 
 public:
@@ -38,9 +41,19 @@ public:
   Task(taskfunc_t run, void* params, unsigned int stackSize,
        unsigned int period, unsigned int timeDelay);
 
+  /**
+   * We return the adress of the variable pointing to the current stack position (top).
+   * We could return the position if we pushed the stack pointer into the stack => harder and wasteful.
+   * // Save stack pointer. Not needed. We point to the stack addr variable (not the first element's address)
+   * auxAddr = (POINTER_SIZE_TYPE) this->stackAddr;
+   * this->push2stack((stack_t) ((axuAddr >> 8) & (POINTER_SIZE_TYPE) 0x00ff));
+   * (*this->stackAddr) = (stack_t) (axuAddr & (POINTER_SIZE_TYPE) 0x00ff);
+   */
   stack_t** getStackAddr() {
     return &(this->stackAddr);
   }
+
+  bool areCanariesIntact() const volatile;
 
   unsigned int getPeriod() const {
     return this->period;
@@ -82,19 +95,19 @@ public:
    * See "Efficient EDF Implementation for Small Embedded System", by Giorgio Buttazzo, et al.
    * for the deadline comparison part.
    */
-  bool operator<(const Task& o) const {
+  bool operator<(const Task &o) const {
     if (!this->ready && o.isReady()) return false;
     if (this->ready && !o.isReady()) return true;
     //return this->deadline < o.getDeadline();
     return ((int) (this->deadline - o.getDeadline())) < 0;
   }
 
-  bool operator==(const Task& o) const {
+  bool operator==(const Task &o) const {
     return this->ready == o.isReady() && //this->deadline == o.getDeadline();
            ((int) (this->deadline - o.getDeadline())) == 0;
   }
 
-  bool operator>(const Task& o) const {
+  bool operator>(const Task &o) const {
     if (!this->ready && o.isReady()) return true;
     if (this->ready && !o.isReady()) return false;
     //return this->deadline > o.getDeadline();

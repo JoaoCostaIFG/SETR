@@ -13,8 +13,8 @@ BOARD_TAG    = uno
 ARDUINO_LIBS =
 
 
-CFLAGS = -Wall
-CPPFLAGS = -Wall
+CFLAGS = -Wall 		# -fstack-usage
+CPPFLAGS = -Wall 	# -fstack-usage
 
 DEBUGBUILD ?= 0
 ifeq ($(DEBUGBUILD), 1)
