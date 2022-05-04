@@ -34,6 +34,8 @@ ifeq ($(DEBUGBUILD), 1)
 	CPPFLAGS += -DDEBUG -ggdb3
 endif
 
+format-code:
+	clang-format **/*{.cpp,.h}
 
 # Source: https://github.com/sudar/Arduino-Makefile
 include Arduino.mk
