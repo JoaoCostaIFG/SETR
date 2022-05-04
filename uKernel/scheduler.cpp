@@ -167,7 +167,7 @@ void Sched_CtxSwitch() {
     __asm__ __volatile__ ( "ret" );
 }
 
-// Yielding
+// Yielding (finished execution)
 void Sched_YieldDispatch() {
 #ifdef DEBUG
     Serial.println("Yield");
