@@ -2,6 +2,9 @@
 
 #include "include/task.h"
 
+#include "include/assert.h"
+#include "include/context.h"
+
 // Arduino UNO is a 16-bit machine 1 byte memory alignment
 #define POINTER_SIZE_TYPE     uint16_t
 #define BYTE_ALIGNMENT        1
@@ -19,12 +22,11 @@ Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
   if (this->ready) // set delay for next period
     this->reset();
 
-  // alloc stack
-  // TODO account for size of pointers
-  stackSize += CANARY_SIZE * 2; // account for cannaries
+  // alloc function stack + space for canaries + space for context registers
+  stackSize += CANARY_SIZE * 2 + N_REGS_SAVED;
   size_t stackSizeBytes = stackSize * sizeof(stack_t);
   auto stack = (stack_t*) malloc(stackSizeBytes);
-  // TODO check if malloc succeeded
+  assert(stack != nullptr);
   memset(stack, 0, stackSizeBytes);
 
   // get stack top addr
@@ -34,7 +36,9 @@ Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
       ((POINTER_SIZE_TYPE) this->botStackAddr) &
       ~((POINTER_SIZE_TYPE) BYTE_ALIGNMENT_MASK)
   );
-  // TODO check validaity
+  assert((((POINTER_SIZE_TYPE) this->botStackAddr &
+                               (POINTER_SIZE_TYPE) BYTE_ALIGNMENT_MASK ) == 0UL));
+
   this->topStackAddr = this->botStackAddr - stackSize;
   // initialize task's stack
   this->stackAddr = this->botStackAddr; // start at the beginning of the stack
@@ -54,6 +58,7 @@ void inline Task::push2stack(stack_t pushable) {
 }
 
 void Task::initializeStack() {
+  //memset(this->botStackAddr, 0, this->topStackAddr - this->botStackAddr);
   this->stackAddr = this->botStackAddr; // start at the beginning of the stack
 
   POINTER_SIZE_TYPE axuAddr;
@@ -121,11 +126,6 @@ void Task::initializeStack() {
 }
 
 bool Task::areCanariesIntact() const volatile {
-  //for (stack_t* tmp = this->botStackAddr;
-  //     tmp != this->topStackAddr; --tmp) {
-  //  Serial.println(*tmp, 16);
-  //}
-
   return *botStackAddr == canary[0] &&
          *(botStackAddr - 1) == canary[1] &&
          *(botStackAddr - 2) == canary[2] &&

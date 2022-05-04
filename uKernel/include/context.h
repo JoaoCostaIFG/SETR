@@ -3,10 +3,13 @@
 
 // Source: https://www.arduino.cc/reference/en/libraries/freertos/
 
-/* We require the address of the currentStack variable, but don't want to know
+/* We require the address of the currStack variable, but don't want to know
 any details of its type. */
 typedef void TCB_t;
-extern volatile TCB_t* volatile currentStack;
+extern volatile TCB_t* volatile currStack;
+
+/** Number of pushes/pops to/from the stack made by save/restore context */
+#define N_REGS_SAVED  33
 
 /*
  * Macro to save all the general purpose registers, the save the stack pointer
@@ -60,8 +63,8 @@ extern volatile TCB_t* volatile currentStack;
                                 "push   r29                                     \n\t"   \
                                 "push   r30                                     \n\t"   \
                                 "push   r31                                     \n\t"   \
-                                "lds    r26, currentStack                       \n\t"   \
-                                "lds    r27, currentStack + 1                   \n\t"   \
+                                "lds    r26, currStack                       \n\t"   \
+                                "lds    r27, currStack + 1                   \n\t"   \
                                 "in     __tmp_reg__, __SP_L__                   \n\t"   \
                                 "st     x+, __tmp_reg__                         \n\t"   \
                                 "in     __tmp_reg__, __SP_H__                   \n\t"   \
@@ -73,8 +76,8 @@ extern volatile TCB_t* volatile currentStack;
  * the context save, so we can write to the stack pointer.
  */
 #define RESTORE_CONTEXT()                                                               \
-        __asm__ __volatile__ (  "lds    r26, currentStack                       \n\t"   \
-                                "lds    r27, currentStack + 1                   \n\t"   \
+        __asm__ __volatile__ (  "lds    r26, currStack                       \n\t"   \
+                                "lds    r27, currStack + 1                   \n\t"   \
                                 "ld     r28, x+                                 \n\t"   \
                                 "out    __SP_L__, r28                           \n\t"   \
                                 "ld     r29, x+                                 \n\t"   \
