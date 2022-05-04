@@ -1,3 +1,4 @@
+#include "include/assert.h"
 #include "include/scheduler.h"
 #include "include/mutex.h"
 #include "include/task1.h"
@@ -35,9 +36,9 @@ void setup() {
   }
 #endif
 
-  Sched_Add(task1);
-  Sched_Add(task2);
-  //Sched_Add(task3);
+  assert(Sched_Add(task1) == 0);
+  assert(Sched_Add(task2) == 0);
+  //assert(Sched_Add(task3) == 0);
 
   Sched_Start();
 

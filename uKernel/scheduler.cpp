@@ -117,9 +117,11 @@ void Sched_Start() {
 }
 
 //TODO: assert nTasks < NT
-void Sched_Add(Task* t) {
+int Sched_Add(Task* t) {
+  if (nTasks == NT) return 1;
+
   tasks[nTasks++] = t;
-  assert(nTasks < NT);
+  return 0;
 }
 
 int Sched_Schedule() {
