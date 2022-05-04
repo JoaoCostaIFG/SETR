@@ -14,9 +14,11 @@ private:
   /** The parameter passed */
   void* params;
   /**
-   * The task's stack
+   * The stack's task
    * The stack where we save the task context for context switching.
    */
+  stack_t* stack;
+  /** The current stack top */
   stack_t* stackAddr;
   /** The minimum address of the task */
   stack_t* botStackAddr;
@@ -45,6 +47,8 @@ public:
 
   Task(taskfunc_t run, void* params, unsigned int stackSize,
        unsigned int period, unsigned int timeDelay);
+
+  ~Task();
 
   /**
    * We return the adress of the variable pointing to the current stack position (top).

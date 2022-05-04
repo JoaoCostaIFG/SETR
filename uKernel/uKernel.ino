@@ -37,6 +37,11 @@ void setup() {
   Sched_Add(task3);
 
   Sched_Start();
+
+  free(task1);
+  free(task2);
+  free(task3);
+  //free(task4);
 }
 
 void loop() {

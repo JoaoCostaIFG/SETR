@@ -8,7 +8,7 @@
 // Arduino UNO is a 16-bit machine 1 byte memory alignment
 #define POINTER_SIZE_TYPE     uint16_t
 #define BYTE_ALIGNMENT        1
-#define BYTE_ALIGNMENT_MASK   ( 0x0000 )
+#define BYTE_ALIGNMENT_MASK   0x0000
 
 #define CANARY_SIZE 3
 
@@ -23,14 +23,17 @@ Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
     this->reset();
 
   // alloc function stack + space for canaries + space for context registers
-  stackSize += CANARY_SIZE * 2 + N_REGS_SAVED;
-  size_t stackSizeBytes = stackSize * sizeof(stack_t);
-  auto stack = (stack_t*) malloc(stackSizeBytes);
-  assert(stack != nullptr);
-  memset(stack, 0, stackSizeBytes);
+#ifdef DOCANARIES
+  stackSize += CANARY_SIZE * 2;
+#endif
+  stackSize += N_REGS_SAVED;
+  const size_t stackSizeBytes = stackSize * sizeof(stack_t);
+  this->stack = (stack_t*) malloc(stackSizeBytes);
+  assert(this->stack != nullptr);
+  memset(this->stack, 0, stackSizeBytes);
 
   // get stack top addr
-  this->botStackAddr = &(stack[stackSize - (uint16_t) 1]);
+  this->botStackAddr = &(this->stack[stackSize - (uint16_t) 1]);
   // byte align pointer
   this->botStackAddr = (stack_t*) (
       ((POINTER_SIZE_TYPE) this->botStackAddr) &
@@ -44,7 +47,7 @@ Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
   this->stackAddr = this->botStackAddr; // start at the beginning of the stack
   this->initializeStack();
 
-  static_assert(sizeof(*this) == 17,
+  static_assert(sizeof(*this) == 19,
                 "The task's data is exceeding the calculated optimal size. Did you add a new data member?");
 }
 
@@ -52,29 +55,32 @@ Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
            unsigned int period, unsigned int timeDelay) :
     Task(run, params, stackSize, period, timeDelay, period) {}
 
+Task::~Task() {
+  free(this->stack);
+}
+
 void inline Task::push2stack(stack_t pushable) {
   *this->stackAddr = pushable;
   this->stackAddr--;
 }
 
 void Task::initializeStack() {
-  //memset(this->botStackAddr, 0, this->topStackAddr - this->botStackAddr);
   this->stackAddr = this->botStackAddr; // start at the beginning of the stack
 
-  POINTER_SIZE_TYPE axuAddr;
-
+#ifdef DOCANARIES
   // The bottom canaries
   this->push2stack(canary[0]);
   this->push2stack(canary[1]);
   this->push2stack(canary[2]);
   // The top canaries
   memcpy(topStackAddr + 1, canary, 3);
+#endif
 
   // save task code (PC) at the bottom of the stack
-  axuAddr = (POINTER_SIZE_TYPE) this->run;
-  this->push2stack((stack_t) (axuAddr & (POINTER_SIZE_TYPE) 0x00ff));
-  axuAddr >>= 8;
-  this->push2stack((stack_t) (axuAddr & (POINTER_SIZE_TYPE) 0x00ff));
+  auto runAddr = (POINTER_SIZE_TYPE) this->run;
+  this->push2stack((stack_t) (runAddr & (POINTER_SIZE_TYPE) 0x00ff));
+  runAddr >>= 8;
+  this->push2stack((stack_t) (runAddr & (POINTER_SIZE_TYPE) 0x00ff));
 
   /* Next simulate the stack as if after a call to SAVE_CONTEXT().
   SAVE_CONTEXT places the flags on the stack immediately after r0
@@ -110,10 +116,10 @@ void Task::initializeStack() {
   this->push2stack((stack_t) 0x23); /* R23 */
 
   /* Place the parameter on the stack in the expected location. */
-  axuAddr = (POINTER_SIZE_TYPE) this->params;
-  this->push2stack((stack_t) (axuAddr & (POINTER_SIZE_TYPE) 0x00ff));
-  axuAddr >>= 8;
-  this->push2stack((stack_t) (axuAddr & (POINTER_SIZE_TYPE) 0x00ff));
+  auto paramAddr = (POINTER_SIZE_TYPE) this->params;
+  this->push2stack((stack_t) (paramAddr & (POINTER_SIZE_TYPE) 0x00ff));
+  paramAddr >>= 8;
+  this->push2stack((stack_t) (paramAddr & (POINTER_SIZE_TYPE) 0x00ff));
 
   /* More debug values on R26-R31 */
   this->push2stack((stack_t) 0x26); /* R26 */
@@ -126,8 +132,12 @@ void Task::initializeStack() {
 }
 
 bool Task::areCanariesIntact() const volatile {
+#ifdef DOCANARIES
   return *botStackAddr == canary[0] &&
          *(botStackAddr - 1) == canary[1] &&
          *(botStackAddr - 2) == canary[2] &&
          memcmp(topStackAddr + 1, canary, 3) == 0;
+#else
+  return true;
+#endif
 }

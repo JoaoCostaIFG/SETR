@@ -12,12 +12,21 @@ BOOTLOADER_PARENT = /usr/share/arduino/hardware/archlinux-arduino/avr/bootloader
 BOARD_TAG    = uno
 ARDUINO_LIBS =
 
+# enable warnings
+CFLAGS += -Wall -Werror
+CPPFLAGS += -Wall -Werror
 
-CFLAGS += -Wall
-CPPFLAGS += -Wall
+# ignore Arduino core deprecation warnings
+CFLAGS += -Wno-deprecated-declarations
+CPPFLAGS += -Wno-deprecated-declarations
 
+# do runtime asserts
 CFLAGS += -DRUNTIMEASSERT
 CPPFLAGS += -DRUNTIMEASSERT
+
+# allocate space for canaries and check for their integrity at runtime
+CFLAGS += -DDOCANARIES
+CPPFLAGS += -DDOCANARIES
 
 DEBUGBUILD ?= 0
 ifeq ($(DEBUGBUILD), 1)
