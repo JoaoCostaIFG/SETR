@@ -9,7 +9,7 @@
 
 #define CANARY_SIZE 3
 
-const stack_t Task::canary[CANARY_SIZE]{0x11, 0x22, 0x33};
+const stack_t Task::canary[CANARY_SIZE] = {0x11, 0x22, 0x33};
 
 Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
            unsigned int period, unsigned int timeDelay, unsigned int deadline) :
@@ -29,6 +29,7 @@ Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
 
   // get stack top addr
   this->botStackAddr = &(stack[stackSize - (uint16_t) 1]);
+  // byte align pointer
   this->botStackAddr = (stack_t*) (
       ((POINTER_SIZE_TYPE) this->botStackAddr) &
       ~((POINTER_SIZE_TYPE) BYTE_ALIGNMENT_MASK)
@@ -38,6 +39,9 @@ Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
   // initialize task's stack
   this->stackAddr = this->botStackAddr; // start at the beginning of the stack
   this->initializeStack();
+
+  static_assert(sizeof(*this) == 17,
+                "The task's data is exceeding the calculated optimal size. Did you add a new data member?");
 }
 
 Task::Task(taskfunc_t run, void* params, unsigned int stackSize,

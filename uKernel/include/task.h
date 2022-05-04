@@ -9,19 +9,24 @@ typedef void (* taskfunc_t)(void*);
 
 class Task {
 private:
+  /** The task's code */
   taskfunc_t run;
+  /** The parameter passed */
   void* params;
-  const unsigned int period;
-  volatile unsigned int timeDelay;
-  volatile unsigned int deadline;
-  volatile bool ready;
   /**
    * The task's stack
    * The stack where we save the task context for context switching.
    */
   stack_t* stackAddr;
+  /** The minimum address of the task */
   stack_t* botStackAddr;
+  /** The maximum address of the task */
   stack_t* topStackAddr;
+
+  const unsigned int period;
+  volatile unsigned int timeDelay;
+  volatile unsigned int deadline;
+  volatile bool ready;
 
   const static stack_t canary[];
 
