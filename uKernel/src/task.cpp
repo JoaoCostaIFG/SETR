@@ -1,8 +1,8 @@
 #include <string.h>
 
-#include "task.h"
 #include "assert.h"
 #include "context.h"
+#include "task.h"
 
 // Arduino UNO is a 16-bit machine 1 byte memory alignment
 #define POINTER_SIZE_TYPE uint16_t
@@ -23,7 +23,7 @@ Task::Task(taskfunc_t run, void *params, unsigned int stackSize,
 
   this->currentDeadline = deadline;
 
-    // alloc function stack + space for canaries + space for context registers
+  // alloc function stack + space for canaries + space for context registers
 #ifdef DOCANARIES
   stackSize += CANARY_SIZE * 2;
 #endif

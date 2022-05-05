@@ -86,9 +86,13 @@ public:
 
   unsigned int getCurrentDeadline() const { return this->currentDeadline; }
 
-  void setCurrentDeadline(unsigned int newDeadline) volatile { this->currentDeadline = newDeadline; }
+  void setCurrentDeadline(unsigned int newDeadline) volatile {
+    this->currentDeadline = newDeadline;
+  }
 
-  void setOriginalDeadline() volatile { this->currentDeadline = this->deadline; }
+  void setOriginalDeadline() volatile {
+    this->currentDeadline = this->deadline;
+  }
 
   bool isReady() const { return this->state == READY; }
 

@@ -27,4 +27,4 @@ gdb:
 
 .PHONY: format-code
 format-code:
-	bash -c 'clang-format -i --sort-includes src/*.h include/*.cpp'
+	bash -c 'clang-format -i --sort-includes include/*.h src/*.cpp'

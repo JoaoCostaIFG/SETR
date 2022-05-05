@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include <limits.h>
 
-#include "scheduler.h"
 #include "assert.h"
 #include "context.h"
+#include "scheduler.h"
 #include "task.h"
 
 // TODO periods have to be lower than this number
@@ -247,6 +247,6 @@ void Sched_BlockTask() {
   __asm__ __volatile__("ret");
 }
 
-void Sched_InheritPriority(Task* blocking) {
+void Sched_InheritPriority(Task *blocking) {
   blocking->setCurrentDeadline(currTask->getCurrentDeadline();)
 }
