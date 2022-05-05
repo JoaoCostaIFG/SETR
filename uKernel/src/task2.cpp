@@ -3,10 +3,10 @@
 #include "scheduler.h"
 #include "task2.h"
 
-#define LEDPIN  12
-#define BUTTON  A1
-#define OFF     LOW
-#define ON      HIGH
+#define LEDPIN 12
+#define BUTTON A1
+#define OFF LOW
+#define ON HIGH
 
 void task2Func(void *arg) {
   // set pin as output

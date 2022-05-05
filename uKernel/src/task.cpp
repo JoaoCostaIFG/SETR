@@ -21,7 +21,7 @@ Task::Task(taskfunc_t run, void *params, unsigned int stackSize,
   if (this->state == READY) // set delay for next period
     this->reset();
 
-  // alloc function stack + space for canaries + space for context registers
+    // alloc function stack + space for canaries + space for context registers
 #ifdef DOCANARIES
   stackSize += CANARY_SIZE * 2;
 #endif

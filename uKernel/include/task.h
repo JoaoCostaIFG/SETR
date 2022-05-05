@@ -9,12 +9,10 @@ typedef void (*taskfunc_t)(void *);
 
 typedef enum { READY, BLOCKED, NOT_READY, WAITING } state_t;
 
-typedef struct 
-{
+typedef struct {
   size_t key;
   unsigned int value;
 } mapElement;
-
 
 class Task {
 private:
@@ -39,9 +37,8 @@ private:
   volatile unsigned int deadline;
   volatile state_t state;
 
-  // TODO: 
-  mapElement* inheritedPriorities[5] {nullptr};
-
+  // TODO:
+  mapElement *inheritedPriorities[5]{nullptr};
 
   const static stack_t canary[];
 
@@ -92,40 +89,43 @@ public:
    */
   void nextDeadline() volatile { this->deadline += this->period; }
 
-  unsigned int getDeadline() volatile const { 
-    unsigned int dl = this->deadline; 
+  unsigned int getDeadline() volatile const {
+    unsigned int dl = this->deadline;
 
     for (int i = 0; i < 5; ++i) {
-      mapElement* elem = this->inheritedPriorities[i];
-      if (elem == nullptr) continue;
+      mapElement *elem = this->inheritedPriorities[i];
+      if (elem == nullptr)
+        continue;
       if (elem->value > dl)
         dl = elem->value;
     }
-    return dl; 
+    return dl;
   }
 
   void inheritPrio(size_t mutex, unsigned int deadline) volatile {
     for (int i = 0; i < 5; ++i) {
-      mapElement* elem = this->inheritedPriorities[i];
-      if (elem == nullptr) continue;
+      mapElement *elem = this->inheritedPriorities[i];
+      if (elem == nullptr)
+        continue;
       if (elem->key == mutex) {
-        if (elem->value < deadline) 
+        if (elem->value < deadline)
           elem->value = deadline;
         return;
       }
     }
 
     for (int i = 0; i < 5; ++i) {
-      mapElement* elem = this->inheritedPriorities[i];
-      if (elem == nullptr) 
-        this->inheritedPriorities[i] = new mapElement {mutex, deadline};
+      mapElement *elem = this->inheritedPriorities[i];
+      if (elem == nullptr)
+        this->inheritedPriorities[i] = new mapElement{mutex, deadline};
     }
   }
 
   void restorePrio(size_t mutex) volatile {
     for (int i = 0; i < 5; ++i) {
-      mapElement* elem = this->inheritedPriorities[i];
-      if (elem == nullptr) continue;
+      mapElement *elem = this->inheritedPriorities[i];
+      if (elem == nullptr)
+        continue;
       if (elem->key == mutex) {
         free(elem);
         this->inheritedPriorities[i] = nullptr;
