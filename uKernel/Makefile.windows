@@ -1,8 +1,0 @@
-ARDUINO_DIR   = C:/Arduino
-ARDMK_DIR     = path/to/mkfile
-
-BOARD_TAG     = uno
-MONITOR_PORT  = com4
-
-# Source: https://github.com/sudar/Arduino-Makefile
-include Arduino.mk
