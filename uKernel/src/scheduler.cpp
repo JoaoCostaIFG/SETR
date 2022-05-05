@@ -1,11 +1,10 @@
 #include <Arduino.h>
 #include <limits.h>
 
-#include "include/scheduler.h"
-
-#include "include/assert.h"
-#include "include/context.h"
-#include "include/task.h"
+#include "scheduler.h"
+#include "assert.h"
+#include "context.h"
+#include "task.h"
 
 // TODO periods have to be lower than this number
 #define MAXTIMEDIFF UINT_MAX / 2

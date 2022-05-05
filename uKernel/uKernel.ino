@@ -1,10 +1,12 @@
-#include "include/assert.h"
-#include "include/scheduler.h"
-#include "include/mutex.h"
-#include "include/task1.h"
-#include "include/task2.h"
-#include "include/task3.h"
-#include "include/task4.h"
+#include <Arduino.h>
+
+#include "assert.h"
+#include "scheduler.h"
+#include "mutex.h"
+#include "task1.h"
+#include "task2.h"
+#include "task3.h"
+#include "task4.h"
 
 Mutex* mutex1 = Sched_CreateMutex();
 

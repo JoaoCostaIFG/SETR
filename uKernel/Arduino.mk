@@ -766,12 +766,12 @@ endif
 ########################################################################
 # Local sources
 
-LOCAL_C_SRCS    ?= $(wildcard *.c)
-LOCAL_CPP_SRCS  ?= $(wildcard *.cpp)
-LOCAL_CC_SRCS   ?= $(wildcard *.cc)
-LOCAL_PDE_SRCS  ?= $(wildcard *.pde)
+LOCAL_C_SRCS    ?= $(wildcard src/*.c)
+LOCAL_CPP_SRCS  ?= $(wildcard src/*.cpp)
+LOCAL_CC_SRCS   ?= $(wildcard src/*.cc)
+LOCAL_PDE_SRCS  ?= $(wildcard src/*.pde)
 LOCAL_INO_SRCS  ?= $(wildcard *.ino)
-LOCAL_AS_SRCS   ?= $(wildcard *.S)
+LOCAL_AS_SRCS   ?= $(wildcard src/*.S)
 LOCAL_SRCS      = $(LOCAL_C_SRCS)   $(LOCAL_CPP_SRCS) \
 		$(LOCAL_CC_SRCS)   $(LOCAL_PDE_SRCS) \
 		$(LOCAL_INO_SRCS) $(LOCAL_AS_SRCS)
@@ -1014,7 +1014,7 @@ endif
 
 # Using += instead of =, so that CPPFLAGS can be set per sketch level
 CPPFLAGS      += -$(MCU_FLAG_NAME)=$(MCU) -DF_CPU=$(F_CPU) -DARDUINO=$(ARDUINO_VERSION) $(ARDUINO_ARCH_FLAG) -D__PROG_TYPES_COMPAT__ \
-        -I$(ARDUINO_CORE_PATH) -I$(ARDUINO_VAR_PATH)/$(VARIANT) \
+        -I$(ARDUINO_CORE_PATH) -I$(ARDUINO_VAR_PATH)/$(VARIANT) -Iinclude \
         $(SYS_INCLUDES) $(PLATFORM_INCLUDES) $(USER_INCLUDES) -Wall -ffunction-sections \
         -fdata-sections
 
@@ -1066,7 +1066,7 @@ else
 endif
 
 CFLAGS        += $(CFLAGS_STD)
-CXXFLAGS      += -fpermissive -fno-exceptions $(CXXFLAGS_STD)
+CXXFLAGS      += -fno-exceptions $(CXXFLAGS_STD)
 ASFLAGS       += -x assembler-with-cpp
 ifeq ($(shell expr $(CC_VERNUM) '>' 490), 1)
     ASFLAGS += -flto

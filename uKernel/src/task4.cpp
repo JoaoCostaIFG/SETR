@@ -1,24 +1,22 @@
 #include <Arduino.h>
 
-#include "include/scheduler.h"
-#include "include/task2.h"
+#include "scheduler.h"
+#include "task4.h"
 
-#define LEDPIN 12
+#define LEDPIN 10
 #define OFF HIGH
 #define ON LOW
 
-void task2Func(void *arg) {
+void task4Func(void *arg) {
   // set pin as output
   pinMode(LEDPIN, OUTPUT);
   digitalWrite(LEDPIN, ON);
 
   while (true) {
 #ifdef DOTRACE
-    Serial.println("In task2");
+    Serial.println("In task4");
 #endif
-    mutex1->lock();
     digitalWrite(LEDPIN, !digitalRead(LEDPIN));
-    mutex1->unlock();
 
     Sched_Yield(); // yield
   }
