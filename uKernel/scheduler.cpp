@@ -247,3 +247,7 @@ void Sched_BlockTask() {
 
   __asm__ __volatile__("ret");
 }
+
+void Sched_InheritPriority(Task* blocking) {
+  blocking->setCurrentDeadline(currTask->getCurrentDeadline();)
+}

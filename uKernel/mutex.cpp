@@ -26,6 +26,11 @@ int Mutex::lock() {
 
   this->insertPretender(currTask);
 
+  // blocking task inherits priority of the blocked task
+  unsigned int currTaskDeadline = currTask->getCurrentDeadline();
+  if (this->holder->getCurrentDeadline() < currTaskDeadline)
+    this->holder->setCurrentDeadline(currTaskDeadline);
+
   interrupts();
 
   Sched_BlockTask();
@@ -68,3 +73,5 @@ void Mutex::readyPretenders() {
     }
   }
 }
+
+void Mutex::

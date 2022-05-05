@@ -30,6 +30,7 @@ private:
   const unsigned int period;
   volatile unsigned int timeDelay;
   volatile unsigned int deadline;
+  volatile unsigned int currentDeadline;
   volatile state_t state;
 
   const static stack_t canary[];
@@ -82,6 +83,12 @@ public:
   void nextDeadline() volatile { this->deadline += this->period; }
 
   unsigned int getDeadline() const { return this->deadline; }
+
+  unsigned int getCurrentDeadline() const { return this->currentDeadline; }
+
+  void setCurrentDeadline(unsigned int newDeadline) volatile { this->currentDeadline = newDeadline; }
+
+  void setOriginalDeadline() volatile { this->currentDeadline = this->deadline; }
 
   bool isReady() const { return this->state == READY; }
 
