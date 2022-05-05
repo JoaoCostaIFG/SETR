@@ -1,0 +1,1 @@
+avrdude -q -V -p atmega328p -D -c arduino -b 115200 -P com4 -U flash:w:build-uno/uKernel.hex:i
