@@ -3,9 +3,9 @@
 #include "scheduler.h"
 #include "task4.h"
 
-#define LEDPIN 10
-#define OFF HIGH
-#define ON LOW
+#define LEDPIN  10
+#define OFF     LOW
+#define ON      HIGH
 
 void task4Func(void *arg) {
   // set pin as output

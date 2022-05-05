@@ -144,7 +144,7 @@ int Sched_Add(Task *t) {
 
 int Sched_Schedule() {
 #ifdef DOTRACE
-  Serial.println("Schedule");
+  //Serial.println("Schedule");
 #endif
 
   int readyCnt = 0;
@@ -175,7 +175,7 @@ int Sched_Schedule() {
 
 void Sched_Dispatch() {
 #ifdef DOTRACE
-  Serial.println("Dispatch");
+  //Serial.println("Dispatch");
 #endif
 
   Task *nextTask = tasks[0];
