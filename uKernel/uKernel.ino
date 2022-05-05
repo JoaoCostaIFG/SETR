@@ -8,7 +8,7 @@
 #include "task3.h"
 #include "task4.h"
 
-Mutex* mutex1 = Sched_CreateMutex();
+Mutex* mutex1 = new Mutex();
 
 static Task* task1 = new Task(&task1Func, (void*) 0, 200, 2, 0 );
 static Task* task2 = new Task(&task2Func, (void*) 0, 200, 20, 0, 20);

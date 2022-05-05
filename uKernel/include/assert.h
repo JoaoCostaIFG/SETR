@@ -3,6 +3,8 @@
 
 #ifdef RUNTIMEASSERT
 
+#include <Arduino.h>
+
 /**
  * Blocks the device in a loop saying SOS in morse:
  * 3 short blink

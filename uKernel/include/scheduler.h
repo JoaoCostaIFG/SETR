@@ -1,11 +1,8 @@
 #ifndef UKERNEL_SCHEDULER_H
 #define UKERNEL_SCHEDULER_H
 
-#include "mutex.h"
 #include "scheduler_isr.h"
 #include "task.h"
-
-Mutex *Sched_CreateMutex();
 
 void Sched_Init();
 

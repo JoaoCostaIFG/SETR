@@ -1,16 +1,14 @@
 #include <Arduino.h>
 #include <limits.h>
 
-#include "scheduler.h"
 #include "assert.h"
 #include "context.h"
+#include "scheduler.h"
 #include "task.h"
 
 // TODO periods have to be lower than this number
 #define MAXTIMEDIFF UINT_MAX / 2
 #define NT 20
-
-#define NM 20 // number of mutexes
 
 // TODO delete one-shot
 
@@ -26,8 +24,6 @@ static Task *idleTask =
 // stack
 volatile TCB_t *volatile currStack = nullptr;
 
-static Mutex *mutexes[NM];
-
 void idleTaskFunc(void *arg) {
   while (true) {
 #ifdef DOTRACE
@@ -36,18 +32,6 @@ void idleTaskFunc(void *arg) {
     // delay(1000);
     ;
   }
-}
-
-Mutex *Sched_CreateMutex() {
-  // TODO make this actually good
-  for (int i = 0; i < NM; ++i) {
-    if (mutexes[i] != nullptr)
-      continue;
-    auto mut = new Mutex();
-    mutexes[i] = mut;
-    return mut;
-  }
-  return nullptr;
 }
 
 void Sched_SetupTimer() {
