@@ -9,40 +9,32 @@ ARDUINO_VAR_PATH = /usr/share/arduino/hardware/archlinux-arduino/avr/variants
 BOOTLOADER_PARENT = /usr/share/arduino/hardware/archlinux-arduino/avr/bootloaders
 
 BOARD_TAG    = uno
-MCU_TYPE 		 = atmega328p
+MONITOR_PORT = /dev/ttyACM0
 ARDUINO_LIBS =
 
-# enable warnings
-CFLAGS += -Wall -Werror
-CPPFLAGS += -Wall -Werror
-
-# ignore Arduino core deprecation warnings
-CFLAGS += -Wno-deprecated-declarations
-CPPFLAGS += -Wno-deprecated-declarations
+# if this build for debugging purposes =>
+# 	compiles without optimizations + with symbols + func call tracing
+DEBUG_FLAGS = -O0 -ggdb3 -DDOTRACE
+# ignore util/delay.h warning about disabling optimizations
+DEBUG_FLAGS += -Wno-cpp
 
 # do runtime asserts
-CFLAGS += -DRUNTIMEASSERT
 CPPFLAGS += -DRUNTIMEASSERT
 
 # allocate space for canaries and check for their integrity at runtime
-CFLAGS += -DDOCANARIES
 CPPFLAGS += -DDOCANARIES
 
-# is this build for debugging purposes => compiles with symbols and does trace
-DEBUGBUILD ?= 0
-ifeq ($(DEBUGBUILD), 1)
-	CFLAGS += -DDOTRACE -ggdb3
-	CPPFLAGS += -DDOTRACE -ggdb3
-endif
+# ignore Arduino core deprecation warnings
+CPPFLAGS += -Wno-deprecated-declarations
 
 # Source: https://github.com/sudar/Arduino-Makefile
 include Arduino.mk
 
 .PHONY: simavr
 simavr:
-	make DEBUGBUILD=1
-	simavr -g -m $(MCU_TYPE) "./build-uno/uKernel_.elf"
+	make DEBUG=1
+	simavr -g -m $(AVRDUDE_MCU) $(TARGET_ELF)
 
 .PHONY: format-code
 format-code:
-	fish -c 'clang-format -i --sort-includes **/*{.cpp,.h}'
+	bash -c 'clang-format -i --sort-includes src/*.h include/*.cpp'
