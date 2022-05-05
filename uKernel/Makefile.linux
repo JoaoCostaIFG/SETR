@@ -21,6 +21,10 @@ simavr:
 	make DEBUG=1
 	simavr -g -m $(AVRDUDE_MCU) $(TARGET_ELF)
 
+.PHONY: gdb
+gdb:
+	avr-gdb $(TARGET_ELF)
+
 .PHONY: format-code
 format-code:
 	bash -c 'clang-format -i --sort-includes src/*.h include/*.cpp'
