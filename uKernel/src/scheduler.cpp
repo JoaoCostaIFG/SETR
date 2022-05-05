@@ -6,7 +6,6 @@
 #include "scheduler.h"
 #include "task.h"
 
-// TODO periods have to be lower than this number
 #define MAXTIMEDIFF UINT_MAX / 2
 #define NT 20
 
@@ -17,12 +16,12 @@ void idleTaskFunc(void *arg);
 // tasks
 static int nTasks = 0;
 static Task *tasks[NT]; // lower index => higher task priority
-Task *currTask;
+Task *volatile currTask;
 // idle task
 static Task *idleTask =
     new Task(&idleTaskFunc, (void *)0, 80, 1, 0, MAXTIMEDIFF - 1);
 // stack
-volatile TCB_t *volatile currStack = nullptr;
+volatile stackPtr_t *volatile currStack = nullptr;
 
 void idleTaskFunc(void *arg) {
   while (true) {
@@ -120,6 +119,8 @@ void Sched_Stop() {
 // TODO: assertCond nTasks < NT
 int Sched_Add(Task *t) {
   if (nTasks == NT)
+    return 1;
+  if (t->getPeriod() >= MAXTIMEDIFF)
     return 1;
 
   tasks[nTasks++] = t;

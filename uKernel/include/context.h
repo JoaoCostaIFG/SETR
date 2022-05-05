@@ -5,8 +5,8 @@
 
 /* We require the address of the currStack variable, but don't want to know
 any details of its type. */
-typedef void TCB_t;
-extern volatile TCB_t *volatile currStack;
+typedef void stackPtr_t;
+extern volatile stackPtr_t *volatile currStack;
 
 /** Number of pushes/pops to/from the stack made by save/restore context */
 #define N_REGS_SAVED 33

@@ -5,7 +5,7 @@
 
 #define N_PRETS 20 - 1 // TODO: dynamic memory (vector)
 
-extern Task *currTask;
+extern Task *volatile currTask;
 
 class Mutex {
 private:
