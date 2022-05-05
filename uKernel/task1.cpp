@@ -16,9 +16,9 @@ void task1Func(void *arg) {
 #ifdef DOTRACE
     Serial.println("In task1");
 #endif
-    // mutex1->lock();
+    mutex1->lock();
     digitalWrite(LEDPIN, !digitalRead(LEDPIN));
-    // mutex1->unlock();
+    mutex1->unlock();
 
     Sched_Yield(); // yield
   }
