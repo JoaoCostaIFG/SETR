@@ -1,3 +1,5 @@
+#include <Arduino.h>
+
 #include "include/assert.h"
 #include "include/scheduler.h"
 #include "include/mutex.h"

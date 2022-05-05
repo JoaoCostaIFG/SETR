@@ -8,8 +8,8 @@ BOARDS_TXT = /usr/share/arduino/hardware/archlinux-arduino/avr/boards.txt
 ARDUINO_VAR_PATH = /usr/share/arduino/hardware/archlinux-arduino/avr/variants
 BOOTLOADER_PARENT = /usr/share/arduino/hardware/archlinux-arduino/avr/bootloaders
 
-
 BOARD_TAG    = uno
+MCU_TYPE 		 = atmega328p
 ARDUINO_LIBS =
 
 # enable warnings
@@ -38,6 +38,11 @@ endif
 # Source: https://github.com/sudar/Arduino-Makefile
 include Arduino.mk
 
+.PHONY: simavr
+simavr:
+	make DEBUGBUILD=1
+	simavr -g -m $(MCU_TYPE) "./build-uno/uKernel_.elf"
+
+.PHONY: format-code
 format-code:
 	fish -c 'clang-format -i --sort-includes **/*{.cpp,.h}'
-.PHONY: format-code
