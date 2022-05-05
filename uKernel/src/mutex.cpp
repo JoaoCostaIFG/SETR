@@ -57,7 +57,7 @@ int Mutex::unlock() {
 
 bool Mutex::isLocked() { return this->holder != nullptr; }
 
-int Mutex::insertPretender(volatile Task *pretender) {
+int Mutex::insertPretender(Task *pretender) {
   for (int i = 0; i < N_PRETS; ++i) {
     if (this->pretenders[i] == nullptr) {
       this->pretenders[i] = pretender;

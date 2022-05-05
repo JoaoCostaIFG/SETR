@@ -17,7 +17,7 @@ void idleTaskFunc(void *arg);
 // tasks
 static int nTasks = 0;
 static Task *tasks[NT]; // lower index => higher task priority
-volatile Task *currTask;
+Task *currTask;
 // idle task
 static Task *idleTask =
     new Task(&idleTaskFunc, (void *)0, 80, 1, 0, MAXTIMEDIFF - 1);

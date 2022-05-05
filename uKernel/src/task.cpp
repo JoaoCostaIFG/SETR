@@ -45,7 +45,7 @@ Task::Task(taskfunc_t run, void *params, unsigned int stackSize,
   this->stackAddr = this->botStackAddr; // start at the beginning of the stack
   this->initializeStack();
 
-  static_assert(sizeof(*this) == 30,
+  static_assert(sizeof(*this) == 26,
                 "The task's data is exceeding the calculated optimal size. Did "
                 "you add a new data member?");
 }
@@ -127,7 +127,7 @@ void Task::initializeStack() {
   this->push2stack((stack_t)0x31); /* R31 */
 }
 
-bool Task::areCanariesIntact() const volatile {
+bool Task::areCanariesIntact() const {
 #ifdef DOCANARIES
   return *botStackAddr == canary[0] && *(botStackAddr - 1) == canary[1] &&
          *(botStackAddr - 2) == canary[2] &&

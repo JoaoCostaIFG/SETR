@@ -5,16 +5,16 @@
 
 #define N_PRETS 20 - 1 // TODO: dynamic memory (vector)
 
-extern volatile Task *currTask;
+extern Task *currTask;
 
 class Mutex {
 private:
-  volatile Task *holder;
-  volatile Task *pretenders[N_PRETS];
+  Task *holder;
+  Task *pretenders[N_PRETS];
 
   bool isLocked();
 
-  int insertPretender(volatile Task *pretender);
+  int insertPretender(Task *pretender);
 
   void readyPretenders();
 
