@@ -1,6 +1,6 @@
 # if this build for debugging purposes =>
 # 	compiles without optimizations + with symbols + func call tracing
-DEBUG_FLAGS = -O0 -ggdb3 -DDOTRACE
+DEBUG_FLAGS = -Os -ggdb3 -DDOTRACE
 # ignore util/delay.h warning about disabling optimizations
 DEBUG_FLAGS += -Wno-cpp
 

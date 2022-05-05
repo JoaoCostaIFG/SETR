@@ -27,9 +27,7 @@ int Mutex::lock() {
   this->insertPretender(currTask);
 
   // blocking task inherits priority of the blocked task
-  unsigned int currTaskDeadline = currTask->getCurrentDeadline();
-  if (this->holder->getCurrentDeadline() < currTaskDeadline)
-    this->holder->setCurrentDeadline(currTaskDeadline);
+  this->holder->inheritPrio((size_t) this, currTask->getDeadline());
 
   interrupts();
 
@@ -46,6 +44,9 @@ int Mutex::unlock() {
   if (this->isLocked() && this->holder == currTask) {
     this->holder = nullptr;
     ret = 0;
+
+    this->holder->restorePrio((size_t) this);
+
     readyPretenders();
   }
 
@@ -70,8 +71,7 @@ void Mutex::readyPretenders() {
   for (int i = 0; i < N_PRETS; ++i) {
     if (this->pretenders[i] != nullptr) {
       this->pretenders[i]->setState(READY);
+      this->pretenders[i] = nullptr; // clear pretenders
     }
   }
 }
-
-void Mutex::

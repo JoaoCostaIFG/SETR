@@ -9,6 +9,13 @@ typedef void (*taskfunc_t)(void *);
 
 typedef enum { READY, BLOCKED, NOT_READY, WAITING } state_t;
 
+typedef struct 
+{
+  size_t key;
+  unsigned int value;
+} mapElement;
+
+
 class Task {
 private:
   /** The task's code */
@@ -30,8 +37,11 @@ private:
   const unsigned int period;
   volatile unsigned int timeDelay;
   volatile unsigned int deadline;
-  volatile unsigned int currentDeadline;
   volatile state_t state;
+
+  // TODO: 
+  mapElement* inheritedPriorities[5] {nullptr};
+
 
   const static stack_t canary[];
 
@@ -82,16 +92,45 @@ public:
    */
   void nextDeadline() volatile { this->deadline += this->period; }
 
-  unsigned int getDeadline() const { return this->deadline; }
+  unsigned int getDeadline() volatile const { 
+    unsigned int dl = this->deadline; 
 
-  unsigned int getCurrentDeadline() const { return this->currentDeadline; }
-
-  void setCurrentDeadline(unsigned int newDeadline) volatile {
-    this->currentDeadline = newDeadline;
+    for (int i = 0; i < 5; ++i) {
+      mapElement* elem = this->inheritedPriorities[i];
+      if (elem == nullptr) continue;
+      if (elem->value > dl)
+        dl = elem->value;
+    }
+    return dl; 
   }
 
-  void setOriginalDeadline() volatile {
-    this->currentDeadline = this->deadline;
+  void inheritPrio(size_t mutex, unsigned int deadline) volatile {
+    for (int i = 0; i < 5; ++i) {
+      mapElement* elem = this->inheritedPriorities[i];
+      if (elem == nullptr) continue;
+      if (elem->key == mutex) {
+        if (elem->value < deadline) 
+          elem->value = deadline;
+        return;
+      }
+    }
+
+    for (int i = 0; i < 5; ++i) {
+      mapElement* elem = this->inheritedPriorities[i];
+      if (elem == nullptr) 
+        this->inheritedPriorities[i] = new mapElement {mutex, deadline};
+    }
+  }
+
+  void restorePrio(size_t mutex) volatile {
+    for (int i = 0; i < 5; ++i) {
+      mapElement* elem = this->inheritedPriorities[i];
+      if (elem == nullptr) continue;
+      if (elem->key == mutex) {
+        free(elem);
+        this->inheritedPriorities[i] = nullptr;
+      }
+    }
   }
 
   bool isReady() const { return this->state == READY; }
