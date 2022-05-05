@@ -15,3 +15,12 @@ CPPFLAGS += -Wno-deprecated-declarations
 
 # Source: https://github.com/sudar/Arduino-Makefile
 include Arduino.mk
+
+.PHONY: simavr
+simavr:
+	make DEBUG=1
+	simavr -g -m $(AVRDUDE_MCU) $(TARGET_ELF)
+
+.PHONY: format-code
+format-code:
+	bash -c 'clang-format -i --sort-includes src/*.h include/*.cpp'
