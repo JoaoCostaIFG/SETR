@@ -28,10 +28,11 @@ CPPFLAGS += -DRUNTIMEASSERT
 CFLAGS += -DDOCANARIES
 CPPFLAGS += -DDOCANARIES
 
+# is this build for debugging purposes => compiles with symbols and does trace
 DEBUGBUILD ?= 0
 ifeq ($(DEBUGBUILD), 1)
-	CFLAGS += -DDEBUG -ggdb3
-	CPPFLAGS += -DDEBUG -ggdb3
+	CFLAGS += -DDOTRACE -ggdb3
+	CPPFLAGS += -DDOTRACE -ggdb3
 endif
 
 # Source: https://github.com/sudar/Arduino-Makefile

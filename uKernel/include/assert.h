@@ -10,16 +10,17 @@
  * 3 short blinks
  * (repeat)
  */
-void assertFailed();
+void assertFailed(const __FlashStringHelper *file, int line, const char *func,
+                  const __FlashStringHelper *msg);
 
 /** If the given test fails, call assertFailed */
-#define assert(test)                                                           \
+#define assertCond(test, msg)                                                  \
   if (!(test))                                                                 \
-  assertFailed()
+  assertFailed(F(__FILE__), __LINE__, __func__, msg)
 
 #else
 
-#define assert(test)
+#define assertCond(test, msg)
 
 #endif
 

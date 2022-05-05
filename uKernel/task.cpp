@@ -29,7 +29,7 @@ Task::Task(taskfunc_t run, void *params, unsigned int stackSize,
   stackSize += N_REGS_SAVED;
   const size_t stackSizeBytes = stackSize * sizeof(stack_t);
   this->stack = (stack_t *)malloc(stackSizeBytes);
-  assert(this->stack != nullptr);
+  assertCond(this->stack != nullptr, F("Failed to alloc stack"));
   memset(this->stack, 0, stackSizeBytes);
 
   // get stack top addr
@@ -37,8 +37,9 @@ Task::Task(taskfunc_t run, void *params, unsigned int stackSize,
   // byte align pointer
   this->botStackAddr = (stack_t *)(((POINTER_SIZE_TYPE)this->botStackAddr) &
                                    ~((POINTER_SIZE_TYPE)BYTE_ALIGNMENT_MASK));
-  assert((((POINTER_SIZE_TYPE)this->botStackAddr &
-           (POINTER_SIZE_TYPE)BYTE_ALIGNMENT_MASK) == 0UL));
+  assertCond((((POINTER_SIZE_TYPE)this->botStackAddr &
+               (POINTER_SIZE_TYPE)BYTE_ALIGNMENT_MASK) == 0UL),
+             F("Failed to calculate bottom stack address"));
 
   this->topStackAddr = this->botStackAddr - stackSize;
   // initialize task's stack

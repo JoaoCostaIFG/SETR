@@ -3,7 +3,12 @@
 #include "include/mutex.h"
 #include "include/scheduler.h"
 
-Mutex::Mutex() { this->holder = nullptr; }
+Mutex::Mutex() {
+  this->holder = nullptr;
+  for (int i = 0; i < N_PRETS; ++i) {
+    this->pretenders[i] = nullptr;
+  }
+}
 
 int Mutex::lock() {
   noInterrupts();

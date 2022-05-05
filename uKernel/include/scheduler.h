@@ -11,6 +11,8 @@ void Sched_Init();
 
 void Sched_Start();
 
+void Sched_Stop();
+
 int Sched_Add(Task *t);
 
 void Sched_Dispatch();

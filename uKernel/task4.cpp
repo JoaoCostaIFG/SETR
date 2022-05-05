@@ -13,7 +13,7 @@ void task4Func(void *arg) {
   digitalWrite(LEDPIN, ON);
 
   while (true) {
-#ifdef DEBUG
+#ifdef DOTRACE
     Serial.println("In task4");
 #endif
     digitalWrite(LEDPIN, !digitalRead(LEDPIN));
