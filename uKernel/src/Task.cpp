@@ -1,7 +1,7 @@
 #include <string.h>
 
 #include "Task.h"
-#include "assert.h"
+#include "schedassert.h"
 #include "context.h"
 
 // Arduino UNO is a 16-bit machine 1 byte memory alignment

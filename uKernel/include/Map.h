@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "assert.h"
+#include "schedassert.h"
 
 #define MAP_INIT_SIZE 2
 

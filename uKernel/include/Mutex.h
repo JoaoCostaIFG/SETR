@@ -1,5 +1,5 @@
-#ifndef MUTEX_H
-#define MUTEX_H
+#ifndef UKERNEL_MUTEX_H
+#define UKERNEL_MUTEX_H
 
 #include "Task.h"
 #include "Vector.h"
@@ -23,4 +23,4 @@ public:
   int unlock();
 };
 
-#endif // MUTEX_H
+#endif // UKERNEL_MUTEX_H

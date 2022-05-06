@@ -1,5 +1,5 @@
-#ifndef TASK_H
-#define TASK_H
+#ifndef UKERNEL_TASK_H
+#define UKERNEL_TASK_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -145,4 +145,4 @@ public:
   }
 };
 
-#endif // TASK_H
+#endif // UKERNEL_TASK_H

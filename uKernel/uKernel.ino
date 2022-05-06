@@ -1,6 +1,6 @@
 #include <Arduino.h>
 
-#include "assert.h"
+#include "schedassert.h"
 #include "scheduler.h"
 #include "Mutex.h"
 #include "task1.h"

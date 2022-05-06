@@ -1,10 +1,10 @@
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef UKERNEL_VECTOR_H
+#define UKERNEL_VECTOR_H
 
 #include <stddef.h>
 #include <stdlib.h>
 
-#include "assert.h"
+#include "schedassert.h"
 
 #define VECTOR_INIT_SIZE 5
 
@@ -75,4 +75,4 @@ public:
   T operator[](size_t i) const { return this->at(i); }
 };
 
-#endif // VECTOR_H
+#endif // UKERNEL_VECTOR_H

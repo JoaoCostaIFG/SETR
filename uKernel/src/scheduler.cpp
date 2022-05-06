@@ -3,7 +3,7 @@
 
 #include "Task.h"
 #include "Vector.h"
-#include "assert.h"
+#include "schedassert.h"
 #include "context.h"
 #include "scheduler.h"
 

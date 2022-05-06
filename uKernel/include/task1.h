@@ -1,5 +1,5 @@
-#ifndef TASK_1
-#define TASK_1
+#ifndef UKERNEL_TASK_1
+#define UKERNEL_TASK_1
 
 #include "Mutex.h"
 
@@ -7,4 +7,4 @@ extern Mutex *mutex1;
 
 void task1Func(void *arg);
 
-#endif // TASK_1
+#endif // UKERNEL_TASK_1
