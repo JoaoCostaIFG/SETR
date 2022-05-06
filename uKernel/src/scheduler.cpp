@@ -177,7 +177,6 @@ void Sched_YieldDispatch() {
 
   assertCond(currTask->areCanariesIntact(), F("Canaries are broken"));
 
-  /*
   if (currTask->getPeriod() == 0) {
     // delete one-shot tasks
     tasks.remove(currTask);
@@ -185,9 +184,6 @@ void Sched_YieldDispatch() {
     currTask->setState(NOT_READY);
     currTask->nextDeadline();
   }
-  */
-  currTask->setState(NOT_READY);
-  currTask->nextDeadline();
   currTask = nullptr; // can go to any task
 
   Sched_Dispatch();
