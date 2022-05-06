@@ -9,18 +9,19 @@
 
 #define MAXTIMEDIFF (UINT_MAX / 2)
 
-void idleTaskFunc(void *arg);
+void idleTaskFunc(void* arg);
 
 // tasks
-static Vector<Task *> tasks; // lower index => higher task priority
-Task *volatile currTask;
+static Vector<Task*> tasks; // lower index => higher task priority
+Task* volatile currTask;
 // idle task
-static Task *idleTask =
+static Task* idleTask =
     new Task(&idleTaskFunc, nullptr, 80, 1, 0, MAXTIMEDIFF - 1);
 // stack
-volatile stackPtr_t *volatile currStack = nullptr;
+volatile stackPtr_t* volatile currStack = nullptr;
 
-void idleTaskFunc(void *arg) {
+/** This task never yields. As such, when it starts running, it stays always ready. */
+void idleTaskFunc(void* arg) {
   while (true) {
 #ifdef DOTRACE
     // Serial.println("In idle");
@@ -30,7 +31,16 @@ void idleTaskFunc(void *arg) {
   }
 }
 
-void Sched_SetupTimer() {
+int Sched_Add(Task* t) {
+  if (t->getPeriod() >= MAXTIMEDIFF)
+    return 1;
+  tasks.push(t);
+  return 0;
+}
+
+void Sched_Init() { Sched_Add(idleTask); }
+
+static void Sched_SetupTimer() {
   noInterrupts();
 
   /* configure time */
@@ -46,11 +56,9 @@ void Sched_SetupTimer() {
   interrupts();
 }
 
-void Sched_Init() { Sched_Add(idleTask); }
-
-int compareTask(const void *a, const void *b) {
-  Task *t1 = *((Task **)a);
-  Task *t2 = *((Task **)b);
+static int compareTasks(const void* a, const void* b) {
+  Task* t1 = *((Task**) a);
+  Task* t2 = *((Task**) b);
 
   // push idle task to the end of the ready part (between the ready and
   // not-ready parts)
@@ -67,14 +75,30 @@ int compareTask(const void *a, const void *b) {
   // this is done to enforce order between tasks with the same deadline after
   // sorting. if this was not done, some tasks, even though they had the same
   // prio, could preempt tasks with the same piority, which is not desired
-  return (size_t)t1 < (size_t)t2;
+  return (size_t) t1 < (size_t) t2;
 }
 
-inline void Sched_SortTasks() { tasks.sort(compareTask); }
+static inline void Sched_SortTasks() {
+  tasks.sort(compareTasks);
+}
 
-void Sched_SetCurrTask(Task *newCurrTask) {
+static inline void Sched_SetCurrTask(Task* newCurrTask) {
   currTask = newCurrTask;
   currStack = newCurrTask->getStackAddr(); // set current stack
+}
+
+static void Sched_Dispatch() {
+#ifdef DOTRACE
+  // Serial.println("Dispatch");
+#endif
+
+  Sched_SortTasks(); // sort priorities
+
+  Task* nextTask = tasks[0]; // highest priority task
+  if (nextTask && nextTask->isReady() && nextTask != currTask) {
+    // only switch to ready tasks that aren't the current one
+    Sched_SetCurrTask(nextTask);
+  }
 }
 
 void Sched_Start() {
@@ -109,21 +133,14 @@ void Sched_Stop() {
   interrupts();
 }
 
-int Sched_Add(Task *t) {
-  if (t->getPeriod() >= MAXTIMEDIFF)
-    return 1;
-  tasks.push(t);
-  return 0;
-}
-
-int Sched_Schedule() {
+static int Sched_Schedule() {
 #ifdef DOTRACE
   // Serial.println("Schedule");
 #endif
 
   int readyCnt = 0;
   for (size_t i = 0; i < tasks.getSize(); ++i) {
-    Task *t = tasks[i];
+    Task* t = tasks[i];
     if (t->isReady())
       ++readyCnt;
 
@@ -141,20 +158,6 @@ int Sched_Schedule() {
   return readyCnt;
 }
 
-void Sched_Dispatch() {
-#ifdef DOTRACE
-  // Serial.println("Dispatch");
-#endif
-
-  Sched_SortTasks(); // sort priorities
-
-  Task *nextTask = tasks[0]; // highest priority task
-  if (nextTask && nextTask->isReady() && nextTask != currTask) {
-    // only switch to ready tasks that aren't the current one
-    Sched_SetCurrTask(nextTask);
-  }
-}
-
 void Sched_CtxSwitch() {
   SAVE_CONTEXT(); // save the execution context
 
@@ -169,8 +172,7 @@ void Sched_CtxSwitch() {
   __asm__ __volatile__("ret");
 }
 
-// Yielding (finished execution)
-void Sched_YieldDispatch() {
+static void Sched_YieldDispatch() {
 #ifdef DOTRACE
   Serial.println("Yield");
 #endif
@@ -201,7 +203,7 @@ void Sched_Yield() {
   __asm__ __volatile__("ret");
 }
 
-void Sched_BlockDispatch() {
+static void Sched_BlockDispatch() {
 #ifdef DOTRACE
   Serial.println("Block");
 #endif
@@ -211,7 +213,7 @@ void Sched_BlockDispatch() {
   Sched_Dispatch();
 }
 
-void Sched_BlockTask() {
+void Sched_Block() {
   SAVE_CONTEXT(); // save the execution context
 
   Sched_BlockDispatch();

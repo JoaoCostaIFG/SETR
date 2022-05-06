@@ -26,7 +26,7 @@ int Mutex::lock() {
 
   interrupts();
 
-  Sched_BlockTask();
+  Sched_Block();
 
   // tail recursive - stack does not grow ad nauseam
   return this->lock();
