@@ -3,4 +3,4 @@
 
 void task4Func(void *arg);
 
-#endif /* ifndef TASK_4 */
+#endif // TASK_4

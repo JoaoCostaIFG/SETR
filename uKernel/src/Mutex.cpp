@@ -22,7 +22,7 @@ int Mutex::lock() {
   this->pretenders.push(currTask);
 
   // blocking task inherits priority of the blocked task
-  this->holder->inheritPrio((size_t) this, currTask->getDeadline());
+  this->holder->inheritPrio((size_t)this, currTask->getDeadline());
 
   interrupts();
 
@@ -37,7 +37,7 @@ int Mutex::unlock() {
 
   int ret = 1;
   if (this->isLocked() && this->holder == currTask) {
-    this->holder->restorePrio((size_t) this);
+    this->holder->restorePrio((size_t)this);
     this->holder = nullptr;
     ret = 0;
 

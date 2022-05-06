@@ -31,7 +31,7 @@ Task::Task(taskfunc_t run, void *params, unsigned int stackSize,
   assertCond(this->stack != nullptr, F("Failed to alloc stack"));
   memset(this->stack, 0, stackSizeBytes);
 
-  // get stack top addr
+  // get stack top address
   this->botStackAddr = &(this->stack[stackSize - (uint16_t)1]);
   // byte align pointer
   this->botStackAddr = (stack_t *)(((POINTER_SIZE_TYPE)this->botStackAddr) &

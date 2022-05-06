@@ -12,19 +12,15 @@ extern volatile stackPtr_t *volatile currStack;
 #define N_REGS_SAVED 33
 
 /*
- * Macro to save all the general purpose registers, the save the stack pointer
- * into the TCB.
+ * Macro to save all the general purpose registers, and the stack pointer.
  *
- * The first thing we do is save the flags then disable interrupts.  This is to
+ * We start by saving the flags, and then disabling interrupts. This is to
  * guard our stack against having a context switch interrupt after we have
  * already pushed the registers onto the stack - causing the 32 registers to be
  * on the stack twice.
  *
- * r1 is set to zero as the compiler expects it to be thus, however some
- * of the math routines make use of R1.
- *
- * The interrupts will have been disabled during the call to portSAVE_CONTEXT()
- * so we need not worry about reading/writing to the stack pointer.
+ * R1 is set to zero as the compiler expects it to be thus. However, some
+ * math routines make use of R1.
  */
 #define SAVE_CONTEXT()                                                         \
   __asm__ __volatile__("push   __tmp_reg__                             \n\t"   \
@@ -71,8 +67,9 @@ extern volatile stackPtr_t *volatile currStack;
                        "st     x+, __tmp_reg__                         \n\t")
 
 /*
- * Opposite to SAVE_CONTEXT().  Interrupts will have been disabled during
- * the context save, so we can write to the stack pointer.
+ * Opposite to SAVE_CONTEXT().
+ * Interrupts will have been disabled during the context save, so we can write
+ * to the stack pointer.
  */
 #define RESTORE_CONTEXT()                                                      \
   __asm__ __volatile__("lds    r26, currStack                       \n\t"      \

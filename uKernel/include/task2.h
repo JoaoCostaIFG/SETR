@@ -7,4 +7,4 @@ extern Mutex *mutex1;
 
 void task2Func(void *arg);
 
-#endif /* ifndef TASK_2 */
+#endif // TASK_2

@@ -61,9 +61,9 @@ public:
   ~Task();
 
   /**
-   * We return the adress of the variable pointing to the current stack position
-   * (top). We could return the position if we pushed the stack pointer into the
-   * stack => harder and wasteful.
+   * We return the address of the variable pointing to the current stack
+   * position (top). We could return the position if we pushed the stack pointer
+   * into the stack => harder and wasteful.
    * // Save stack pointer. Not needed. We point to the stack addr variable (not
    * the first element's address) auxAddr = (POINTER_SIZE_TYPE) this->stackAddr;
    * this->push2stack((stack_t) ((axuAddr >> 8) & (POINTER_SIZE_TYPE) 0x00ff));
@@ -113,7 +113,7 @@ public:
 
   bool isReady() const { return this->state == READY; }
 
-  void setState(state_t state) { this->state = state; }
+  void setState(state_t newState) { this->state = newState; }
 
   state_t getState() { return this->state; }
 

@@ -9,7 +9,7 @@
 #define ON HIGH
 #define OFF LOW
 #define SHORT_BLINK 300
-#define LONG_BLINK SHORT_BLINK * 3
+#define LONG_BLINK (SHORT_BLINK * 3)
 
 void assertFailed(const __FlashStringHelper *const file, const int line,
                   const char *const func,

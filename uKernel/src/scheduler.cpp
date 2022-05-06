@@ -7,7 +7,7 @@
 #include "context.h"
 #include "scheduler.h"
 
-#define MAXTIMEDIFF UINT_MAX / 2
+#define MAXTIMEDIFF (UINT_MAX / 2)
 
 void idleTaskFunc(void *arg);
 
@@ -16,7 +16,7 @@ static Vector<Task *> tasks; // lower index => higher task priority
 Task *volatile currTask;
 // idle task
 static Task *idleTask =
-    new Task(&idleTaskFunc, (void *)0, 80, 1, 0, MAXTIMEDIFF - 1);
+    new Task(&idleTaskFunc, nullptr, 80, 1, 0, MAXTIMEDIFF - 1);
 // stack
 volatile stackPtr_t *volatile currStack = nullptr;
 
