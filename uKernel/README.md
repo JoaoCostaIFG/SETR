@@ -6,9 +6,9 @@ This is a real-time micro-kernel for the
 This project was developed for an university curricular unit about real-time
 systems. It was a colaboration between:
 
-- [Davide Castro]();
-- [Henrique Ribeiro]();
-- [João Costa]();
+- [Davide Castro](https://github.com/davide-castro20);
+- [Henrique Ribeiro](https://github.com/TheZambi);
+- [João Costa](https://github.com/JoaoCostaIFG);
 
 ## Building and Uploading
 
