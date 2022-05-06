@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <util/delay.h>
 
+#ifdef RUNTIMEASSERT
+
 #include "assert.h"
 #include "scheduler.h"
 
@@ -63,3 +65,5 @@ void assertFailed(const __FlashStringHelper *const file, const int line,
     _delay_ms(LONG_BLINK * 2);
   }
 }
+
+#endif // RUNTIMEASSERT

@@ -3,9 +3,7 @@
 #include "Mutex.h"
 #include "scheduler.h"
 
-Mutex::Mutex() {
-  this->holder = nullptr;
-}
+Mutex::Mutex() { this->holder = nullptr; }
 
 int Mutex::lock() {
   noInterrupts();
@@ -24,7 +22,7 @@ int Mutex::lock() {
   this->pretenders.push(currTask);
 
   // blocking task inherits priority of the blocked task
-  this->holder->inheritPrio((size_t) this, currTask->getDeadline());
+  this->holder->inheritPrio((size_t)this, currTask->getDeadline());
 
   interrupts();
 
@@ -42,7 +40,7 @@ int Mutex::unlock() {
     this->holder = nullptr;
     ret = 0;
 
-    this->holder->restorePrio((size_t) this);
+    this->holder->restorePrio((size_t)this);
 
     readyPretenders();
   }

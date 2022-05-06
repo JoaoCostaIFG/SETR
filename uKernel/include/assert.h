@@ -24,6 +24,6 @@ void assertFailed(const __FlashStringHelper *file, int line, const char *func,
 
 #define assertCond(test, msg)
 
-#endif
+#endif // RUNTIMEASSERT
 
 #endif // ASSERT_H

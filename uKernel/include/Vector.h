@@ -8,16 +8,15 @@
 
 #define VECTOR_INIT_SIZE 5
 
-template<typename T>
-class Vector {
+template <typename T> class Vector {
 private:
-  T* data;
+  T *data;
   size_t size;
   size_t maxSize;
 
   void increaseSize() {
     this->maxSize *= 2;
-    this->data = (T*) realloc(this->data, this->maxSize * sizeof(T*));
+    this->data = (T *)realloc(this->data, this->maxSize * sizeof(T *));
     assertCond(this->data != nullptr, F("Failed to re-allocate map memory"));
   }
 
@@ -25,13 +24,11 @@ public:
   Vector() {
     this->maxSize = VECTOR_INIT_SIZE;
     this->size = 0;
-    this->data = (T*) malloc(VECTOR_INIT_SIZE * sizeof(T*));
+    this->data = (T *)malloc(VECTOR_INIT_SIZE * sizeof(T *));
     assertCond(this->data != nullptr, F("Failed to allocate map memory"));
   }
 
-  ~Vector() {
-    free(this->data);
-  }
+  ~Vector() { free(this->data); }
 
   size_t getSize() const { return this->size; }
 
@@ -69,17 +66,13 @@ public:
     }
   }
 
-  void clear() {
-    this->size = 0;
-  }
+  void clear() { this->size = 0; }
 
-  void sort(int (* cmpFunc)(const void* a, const void* b)) {
+  void sort(int (*cmpFunc)(const void *a, const void *b)) {
     qsort(this->data, this->size, sizeof(T), cmpFunc);
   }
 
-  T operator[](size_t i) const {
-    return this->at(i);
-  }
+  T operator[](size_t i) const { return this->at(i); }
 };
 
 #endif // VECTOR_H

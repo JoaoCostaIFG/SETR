@@ -1,8 +1,8 @@
 #ifndef UKERNEL_SCHEDULER_H
 #define UKERNEL_SCHEDULER_H
 
-#include "scheduler_isr.h"
 #include "Task.h"
+#include "scheduler_isr.h"
 
 void Sched_Init();
 

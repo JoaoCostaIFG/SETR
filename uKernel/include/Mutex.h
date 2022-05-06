@@ -4,12 +4,12 @@
 #include "Task.h"
 #include "Vector.h"
 
-extern Task* volatile currTask;
+extern Task *volatile currTask;
 
 class Mutex {
 private:
-  Task* holder;
-  Vector<Task*> pretenders;
+  Task *holder;
+  Vector<Task *> pretenders;
 
   bool isLocked();
 

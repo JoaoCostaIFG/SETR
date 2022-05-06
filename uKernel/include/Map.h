@@ -8,8 +8,7 @@
 
 #define MAP_INIT_SIZE 2
 
-template<typename KEY, typename VALUE>
-class Map {
+template <typename KEY, typename VALUE> class Map {
 public:
   typedef struct {
     KEY key;
@@ -17,14 +16,14 @@ public:
   } MapElement;
 
 private:
-  MapElement** data;
+  MapElement **data;
   size_t size;
   size_t maxSize;
 
   void increaseSize() {
     this->maxSize *= 2;
-    this->data = (MapElement**) realloc(this->data,
-                                        this->maxSize * sizeof(MapElement*));
+    this->data = (MapElement **)realloc(this->data,
+                                        this->maxSize * sizeof(MapElement *));
     assertCond(this->data != nullptr, F("Failed to re-allocate map memory"));
   }
 
@@ -38,7 +37,7 @@ public:
   Map() {
     this->maxSize = MAP_INIT_SIZE;
     this->size = 0;
-    this->data = (MapElement**) malloc(MAP_INIT_SIZE * sizeof(MapElement*));
+    this->data = (MapElement **)malloc(MAP_INIT_SIZE * sizeof(MapElement *));
     assertCond(this->data != nullptr, F("Failed to allocate map memory"));
   }
 
@@ -51,14 +50,15 @@ public:
 
   size_t getSize() const { return this->size; }
 
-  MapElement* at(size_t i) const {
-    if (i >= this->size) return nullptr;
+  MapElement *at(size_t i) const {
+    if (i >= this->size)
+      return nullptr;
     return this->data[i];
   }
 
-  MapElement* get(KEY k) const {
+  MapElement *get(KEY k) const {
     for (size_t i = 0; i < this->size; ++i) {
-      MapElement* elem = this->data[i];
+      MapElement *elem = this->data[i];
       if (elem->key == k)
         return elem;
     }
@@ -67,7 +67,7 @@ public:
   }
 
   void set(KEY k, VALUE v) {
-    MapElement* elem = this->get(k);
+    MapElement *elem = this->get(k);
     if (elem == nullptr) {
       this->add(k, v);
     } else {
@@ -78,7 +78,7 @@ public:
   void remove(KEY k) {
     size_t i;
     for (i = 0; i < this->size; ++i) {
-      MapElement* elem = this->data[i];
+      MapElement *elem = this->data[i];
       if (elem->key == k) {
         free(elem);
         break;
