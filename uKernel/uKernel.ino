@@ -32,8 +32,8 @@ void setup() {
 
 #if defined(DOTRACE) || defined(RUNTIMEASSERT)
   Serial.begin(9600);
-  // wait for serial port to connect
-  while (!Serial) { ;
+  while (!Serial) { // wait for serial port to connect
+    ;
   }
 #endif
 

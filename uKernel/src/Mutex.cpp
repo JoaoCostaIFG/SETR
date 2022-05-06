@@ -44,7 +44,7 @@ int Mutex::unlock() {
     readyPretenders();
   }
 
-  interrupts(); // TODO: enable interrupts before readyPretenders?
+  interrupts();
 
   return ret;
 }
