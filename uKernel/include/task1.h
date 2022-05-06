@@ -1,7 +1,7 @@
 #ifndef TASK_1
 #define TASK_1
 
-#include "mutex.h"
+#include "Mutex.h"
 
 extern Mutex *mutex1;
 

@@ -2,7 +2,7 @@
 
 #include "assert.h"
 #include "context.h"
-#include "task.h"
+#include "Task.h"
 
 // Arduino UNO is a 16-bit machine 1 byte memory alignment
 #define POINTER_SIZE_TYPE uint16_t

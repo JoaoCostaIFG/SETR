@@ -2,7 +2,7 @@
 #define UKERNEL_SCHEDULER_H
 
 #include "scheduler_isr.h"
-#include "task.h"
+#include "Task.h"
 
 void Sched_Init();
 

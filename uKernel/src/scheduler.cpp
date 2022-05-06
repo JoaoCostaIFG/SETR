@@ -4,26 +4,24 @@
 #include "assert.h"
 #include "context.h"
 #include "scheduler.h"
-#include "task.h"
+#include "Task.h"
+#include "Vector.h"
 
 #define MAXTIMEDIFF UINT_MAX / 2
-#define NT 20
-
 // TODO delete one-shot
 
-void idleTaskFunc(void *arg);
+void idleTaskFunc(void* arg);
 
 // tasks
-static int nTasks = 0;
-static Task *tasks[NT]; // lower index => higher task priority
-Task *volatile currTask;
+static Vector<Task*> tasks; // lower index => higher task priority
+Task* volatile currTask;
 // idle task
-static Task *idleTask =
-    new Task(&idleTaskFunc, (void *)0, 80, 1, 0, MAXTIMEDIFF - 1);
+static Task* idleTask =
+    new Task(&idleTaskFunc, (void*) 0, 80, 1, 0, MAXTIMEDIFF - 1);
 // stack
-volatile stackPtr_t *volatile currStack = nullptr;
+volatile stackPtr_t* volatile currStack = nullptr;
 
-void idleTaskFunc(void *arg) {
+void idleTaskFunc(void* arg) {
   while (true) {
 #ifdef DOTRACE
     // Serial.println("In idle");
@@ -50,15 +48,12 @@ void Sched_SetupTimer() {
 }
 
 void Sched_Init() {
-  for (auto &task : tasks)
-    task = nullptr;
-
   Sched_Add(idleTask);
 }
 
-int compareTask(const void *a, const void *b) {
-  Task *t1 = *((Task **)a);
-  Task *t2 = *((Task **)b);
+int compareTask(const void* a, const void* b) {
+  Task* t1 = *((Task**) a);
+  Task* t2 = *((Task**) b);
 
   // push idle task to the end of the ready part (between the ready and
   // not-ready parts)
@@ -75,12 +70,14 @@ int compareTask(const void *a, const void *b) {
   // this is done to enforce order between tasks with the same deadline after
   // sorting. if this was not done, some tasks, even though they had the same
   // prio, could preempt tasks with the same piority, which is not desired
-  return (size_t)t1 < (size_t)t2;
+  return (size_t) t1 < (size_t) t2;
 }
 
-void Sched_SortTasks() { qsort(tasks, nTasks, sizeof(Task *), compareTask); }
+inline void Sched_SortTasks() {
+  tasks.sort(compareTask);
+}
 
-void Sched_SetCurrTask(Task *newCurrTask) {
+void Sched_SetCurrTask(Task* newCurrTask) {
   currTask = newCurrTask;
   currStack = newCurrTask->getStackAddr(); // set current stack
 }
@@ -90,9 +87,10 @@ void Sched_Start() {
   Serial.println("Start");
 #endif
 
-  Sched_SortTasks();
-  Sched_SetCurrTask(tasks[0]);
+  // select next running task
+  Sched_Dispatch();
 
+  // this is a tick-based kernel
   Sched_SetupTimer();
 
   // restore context of the first task to run
@@ -116,14 +114,10 @@ void Sched_Stop() {
   interrupts();
 }
 
-// TODO: assertCond nTasks < NT
-int Sched_Add(Task *t) {
-  if (nTasks == NT)
-    return 1;
+int Sched_Add(Task* t) {
   if (t->getPeriod() >= MAXTIMEDIFF)
     return 1;
-
-  tasks[nTasks++] = t;
+  tasks.push(t);
   return 0;
 }
 
@@ -133,11 +127,8 @@ int Sched_Schedule() {
 #endif
 
   int readyCnt = 0;
-  for (int i = 0; i < nTasks; ++i) {
-    Task *t = tasks[i];
-    if (!t)
-      continue;
-
+  for (size_t i = 0; i < tasks.getSize(); ++i) {
+    Task* t = tasks[i];
     if (t->isReady())
       ++readyCnt;
 
@@ -152,9 +143,6 @@ int Sched_Schedule() {
     }
   }
 
-  // sort priorities
-  Sched_SortTasks();
-
   return readyCnt;
 }
 
@@ -163,8 +151,11 @@ void Sched_Dispatch() {
   // Serial.println("Dispatch");
 #endif
 
-  Task *nextTask = tasks[0];
+  Sched_SortTasks(); // sort priorities
+
+  Task* nextTask = tasks[0]; // highest priority task
   if (nextTask && nextTask->isReady() && nextTask != currTask) {
+    // only switch to ready tasks that aren't the current one
     Sched_SetCurrTask(nextTask);
   }
 }
@@ -193,7 +184,6 @@ void Sched_YieldDispatch() {
 
   currTask->setState(NOT_READY);
   currTask->nextDeadline();
-  Sched_SortTasks();
   currTask = nullptr; // can go to any task
 
   Sched_Dispatch();
@@ -217,7 +207,6 @@ void Sched_BlockDispatch() {
 #endif
 
   currTask->setState(BLOCKED);
-  Sched_SortTasks();
   currTask = nullptr;
   Sched_Dispatch();
 }

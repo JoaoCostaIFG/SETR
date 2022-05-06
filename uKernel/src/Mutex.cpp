@@ -1,13 +1,10 @@
 #include <Arduino.h>
 
-#include "mutex.h"
+#include "Mutex.h"
 #include "scheduler.h"
 
 Mutex::Mutex() {
   this->holder = nullptr;
-  for (int i = 0; i < N_PRETS; ++i) {
-    this->pretenders[i] = nullptr;
-  }
 }
 
 int Mutex::lock() {
@@ -24,10 +21,10 @@ int Mutex::lock() {
     return 1;
   }
 
-  this->insertPretender(currTask);
+  this->pretenders.push(currTask);
 
   // blocking task inherits priority of the blocked task
-  this->holder->inheritPrio((size_t)this, currTask->getDeadline());
+  this->holder->inheritPrio((size_t) this, currTask->getDeadline());
 
   interrupts();
 
@@ -45,7 +42,7 @@ int Mutex::unlock() {
     this->holder = nullptr;
     ret = 0;
 
-    this->holder->restorePrio((size_t)this);
+    this->holder->restorePrio((size_t) this);
 
     readyPretenders();
   }
@@ -57,21 +54,9 @@ int Mutex::unlock() {
 
 bool Mutex::isLocked() { return this->holder != nullptr; }
 
-int Mutex::insertPretender(Task *pretender) {
-  for (int i = 0; i < N_PRETS; ++i) {
-    if (this->pretenders[i] == nullptr) {
-      this->pretenders[i] = pretender;
-      return 0;
-    }
-  }
-  return 1;
-}
-
 void Mutex::readyPretenders() {
-  for (int i = 0; i < N_PRETS; ++i) {
-    if (this->pretenders[i] != nullptr) {
-      this->pretenders[i]->setState(READY);
-      this->pretenders[i] = nullptr; // clear pretenders
-    }
+  for (size_t i = 0; i < this->pretenders.getSize(); ++i) {
+    this->pretenders[i]->setState(READY);
   }
+  this->pretenders.clear(); // clear pretenders
 }
