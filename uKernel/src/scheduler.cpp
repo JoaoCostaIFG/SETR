@@ -141,8 +141,8 @@ static int Sched_Schedule() {
   int readyCnt = 0;
   for (size_t i = 0; i < tasks.getSize(); ++i) {
     Task* t = tasks[i];
-    if (t->isReady())
-      ++readyCnt;
+    // count ready tasks
+    readyCnt += (int) t->isReady();
 
     if (t->getDelay() > 0) {
       t->tick();

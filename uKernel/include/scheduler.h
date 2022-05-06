@@ -24,7 +24,7 @@ void Sched_Stop();
  * The idle task (always ready) is run when there are no tasks ready to run.
  * This is meant to be called from an ISR, so the next task can be the same as the interrupted.
  */
-void Sched_CtxSwitch() __attribute__((hot, flatten, naked));
+void Sched_CtxSwitch() __attribute__((hot, naked));
 
 /**
  * Tasks should call this when they finish execution for a given period.
