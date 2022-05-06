@@ -8,7 +8,6 @@
 #include "scheduler.h"
 
 #define MAXTIMEDIFF UINT_MAX / 2
-// TODO delete one-shot
 
 void idleTaskFunc(void *arg);
 
@@ -178,6 +177,15 @@ void Sched_YieldDispatch() {
 
   assertCond(currTask->areCanariesIntact(), F("Canaries are broken"));
 
+  /*
+  if (currTask->getPeriod() == 0) {
+    // delete one-shot tasks
+    tasks.remove(currTask);
+  } else {
+    currTask->setState(NOT_READY);
+    currTask->nextDeadline();
+  }
+  */
   currTask->setState(NOT_READY);
   currTask->nextDeadline();
   currTask = nullptr; // can go to any task
