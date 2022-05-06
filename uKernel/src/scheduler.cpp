@@ -3,8 +3,8 @@
 
 #include "Task.h"
 #include "Vector.h"
-#include "schedassert.h"
 #include "context.h"
+#include "schedassert.h"
 #include "scheduler.h"
 
 #define MAXTIMEDIFF (UINT_MAX / 2)
