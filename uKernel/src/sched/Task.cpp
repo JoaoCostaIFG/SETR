@@ -136,3 +136,24 @@ bool Task::areCanariesIntact() const {
   return true;
 #endif
 }
+
+unsigned int Task::getDeadline() const {
+  unsigned int dl = this->deadline;
+
+  for (size_t i = 0; i < this->inheritedPriorities.getSize(); ++i) {
+    MapElement *elem = this->inheritedPriorities.at(i);
+    if (elem->value > dl)
+      dl = elem->value;
+  }
+
+  return dl;
+}
+
+void Task::inheritPrio(size_t mutex, unsigned int dl) {
+  MapElement *elem = this->inheritedPriorities.get(mutex);
+  if (elem == nullptr) {
+    this->inheritedPriorities.set(mutex, dl);
+  } else if (elem->value < dl) {
+    elem->value = dl;
+  }
+}

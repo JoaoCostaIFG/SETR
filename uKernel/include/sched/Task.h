@@ -8,9 +8,11 @@
 
 typedef unsigned char stack_t;
 
-typedef void (*taskfunc_t)(void *);
+typedef void (* taskfunc_t)(void*);
 
-typedef enum { READY, BLOCKED, NOT_READY, WAITING } state_t;
+typedef enum {
+  READY, BLOCKED, NOT_READY, WAITING
+} state_t;
 
 class Task {
 private:
@@ -20,18 +22,18 @@ private:
   /** The task's code */
   taskfunc_t run;
   /** The parameter passed */
-  void *params;
+  void* params;
   /**
    * The stack's task
    * The stack where we save the task context for context switching.
    */
-  stack_t *stack;
+  stack_t* stack;
   /** The current stack top */
-  stack_t *stackAddr;
+  stack_t* stackAddr;
   /** The minimum address of the task */
-  stack_t *botStackAddr;
+  stack_t* botStackAddr;
   /** The maximum address of the task */
-  stack_t *topStackAddr;
+  stack_t* topStackAddr;
 
   state_t state;
 
@@ -52,10 +54,10 @@ private:
   void initializeStack();
 
 public:
-  Task(taskfunc_t run, void *params, unsigned int stackSize,
+  Task(taskfunc_t run, void* params, unsigned int stackSize,
        unsigned int period, unsigned int timeDelay, unsigned int deadline);
 
-  Task(taskfunc_t run, void *params, unsigned int stackSize,
+  Task(taskfunc_t run, void* params, unsigned int stackSize,
        unsigned int period, unsigned int timeDelay);
 
   ~Task();
@@ -69,7 +71,7 @@ public:
    * this->push2stack((stack_t) ((axuAddr >> 8) & (POINTER_SIZE_TYPE) 0x00ff));
    * (*this->stackAddr) = (stack_t) (axuAddr & (POINTER_SIZE_TYPE) 0x00ff);
    */
-  stack_t **getStackAddr() { return &(this->stackAddr); }
+  stack_t** getStackAddr() { return &(this->stackAddr); }
 
   bool areCanariesIntact() const;
 
@@ -89,25 +91,9 @@ public:
    */
   void nextDeadline() { this->deadline += this->period; }
 
-  unsigned int getDeadline() const {
-    unsigned int dl = this->deadline;
+  unsigned int getDeadline() const;
 
-    for (size_t i = 0; i < this->inheritedPriorities.getSize(); ++i) {
-      MapElement *elem = this->inheritedPriorities.at(i);
-      if (elem->value > dl)
-        dl = elem->value;
-    }
-    return dl;
-  }
-
-  void inheritPrio(size_t mutex, unsigned int dl) {
-    MapElement *elem = this->inheritedPriorities.get(mutex);
-    if (elem == nullptr) {
-      this->inheritedPriorities.set(mutex, dl);
-    } else if (elem->value < dl) {
-      elem->value = dl;
-    }
-  }
+  void inheritPrio(size_t mutex, unsigned int dl);
 
   void restorePrio(size_t mutex) { this->inheritedPriorities.remove(mutex); }
 
@@ -127,12 +113,12 @@ public:
     if (this->isReady() && !o.isReady())
       return true;
 
-    return ((int)(this->getDeadline() - o.getDeadline())) < 0;
+    return ((int) (this->getDeadline() - o.getDeadline())) < 0;
   }
 
   bool operator==(const Task &o) const {
     return this->isReady() == o.isReady() &&
-           ((int)(this->getDeadline() - o.getDeadline())) == 0;
+           ((int) (this->getDeadline() - o.getDeadline())) == 0;
   }
 
   bool operator>(const Task &o) const {
@@ -141,7 +127,7 @@ public:
     if (this->isReady() && !o.isReady())
       return false;
 
-    return ((int)(this->getDeadline() - o.getDeadline())) > 0;
+    return ((int) (this->getDeadline() - o.getDeadline())) > 0;
   }
 };
 
