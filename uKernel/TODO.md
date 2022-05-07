@@ -6,8 +6,9 @@
 
 ## Maybe
 
-- Teste de schedulability?
-- Preserve errno
+- Teste de schedulability;
+- Preserve errno (save na task);
+- Idle task defined as weak.
 
 ## Done
 

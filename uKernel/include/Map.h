@@ -64,17 +64,17 @@ public:
   }
 
   /** Returns the number of elements in the Map. */
-  size_t getSize() const { return this->size; }
+  [[nodiscard]] size_t getSize() const { return this->size; }
 
   /** Get an element by index. Used for iterating the map. */
-  MapElement *at(size_t i) const {
+  [[nodiscard]] MapElement *at(size_t i) const {
     if (i >= this->size)
       return nullptr;
     return this->data[i];
   }
 
   /** Get an element by key. */
-  MapElement *get(KEY k) const {
+  [[nodiscard]] MapElement *get(KEY k) const {
     for (size_t i = 0; i < this->size; ++i) {
       MapElement *elem = this->data[i];
       if (elem->key == k)

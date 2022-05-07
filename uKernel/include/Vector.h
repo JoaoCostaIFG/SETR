@@ -30,9 +30,9 @@ public:
 
   ~Vector() { free(this->data); }
 
-  size_t getSize() const { return this->size; }
+  [[nodiscard]] size_t getSize() const { return this->size; }
 
-  T at(size_t i) const {
+  [[nodiscard]] T at(size_t i) const {
     assertCond(i < this->size, F("Address out of bounds for vector"));
     return this->data[i];
   }
@@ -43,7 +43,7 @@ public:
     this->data[this->size++] = elem;
   }
 
-  size_t indexOf(T toFind) const {
+  [[nodiscard]] size_t indexOf(T toFind) const {
     for (size_t i = 0; i < this->size; ++i) {
       if (this->data[i] == toFind)
         return i;

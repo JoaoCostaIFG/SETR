@@ -2,11 +2,10 @@
 #define UKERNEL_TASK_H
 
 #include <stddef.h>
-#include <stdint.h>
 
 #include "Map.h"
 
-typedef unsigned char stack_t;
+typedef byte stack_t;
 
 typedef void (* taskfunc_t)(void*);
 
@@ -73,21 +72,21 @@ public:
    * this->push2stack((stack_t) ((axuAddr >> 8) & (POINTER_SIZE_TYPE) 0x00ff));
    * (*this->stackAddr) = (stack_t) (axuAddr & (POINTER_SIZE_TYPE) 0x00ff);
    */
-  stack_t** getStackAddr() { return &(this->stackAddr); }
+  [[nodiscard]] stack_t** getStackAddr() { return &(this->stackAddr); }
 
-  bool areCanariesIntact() const;
+  [[nodiscard]] bool areCanariesIntact() const;
 
-  unsigned int getPeriod() const { return this->period; }
+  [[nodiscard]] unsigned int getPeriod() const { return this->period; }
 
-  unsigned int getDelay() const { return this->timeDelay; }
+  [[nodiscard]] unsigned int getDelay() const { return this->timeDelay; }
 
   void tick() {
     if (this->timeDelay > 0)
       --this->timeDelay;
   }
 
-  void sleep(unsigned int sleepTime){
-      this->sleepTime = sleepTime;
+  void sleep(unsigned int st){
+      this->sleepTime = st;
       this->setState(WAITING);
   }
 
@@ -98,17 +97,17 @@ public:
    */
   void nextDeadline() { this->deadline += this->period; }
 
-  unsigned int getDeadline() const;
+  [[nodiscard]] unsigned int getDeadline() const;
 
   void inheritPrio(size_t mutex, unsigned int dl);
 
   void restorePrio(size_t mutex) { this->inheritedPriorities.remove(mutex); }
 
-  bool isReady() const { return this->state == READY; }
+  [[nodiscard]] bool isReady() const { return this->state == READY; }
 
   void setState(state_t newState) { this->state = newState; }
 
-  state_t getState() { return this->state; }
+  [[nodiscard]] state_t getState() { return this->state; }
 
   void tickSleep() {
       --this->sleepTime;
