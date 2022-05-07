@@ -4,7 +4,7 @@
 
 ## Likely
 
-- Sleep/Delay func
+
 
 ## Maybe
 
@@ -27,3 +27,4 @@
 - Stuff para o readme:
   - simavr
   - gdb
+- Sleep/Delay func

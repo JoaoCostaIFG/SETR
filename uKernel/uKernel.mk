@@ -1,3 +1,6 @@
+ARDMK_DIR = ./ardmk
+BOARD_TAG = uno
+
 # if this build for debugging purposes =>
 # 	compiles without optimizations + with symbols + func call tracing
 DEBUG_FLAGS = -Os -ggdb3 -DDOTRACE
@@ -14,7 +17,7 @@ CPPFLAGS += -DDOCANARIES
 CPPFLAGS += -Wno-deprecated-declarations
 
 # Source: https://github.com/sudar/Arduino-Makefile
-include Arduino.mk
+include $(ARDMK_DIR)/Arduino.mk
 
 .PHONY: simavr
 simavr:

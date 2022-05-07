@@ -58,7 +58,7 @@ the serial port where the arduino is connected.
 ### Compiler flags
 
 There are some conditional compilation zones in the code that can be toggled
-with compiler flags. Have a look at [Makefile.linux](./Makefile.linux) for more
+with compiler flags. Have a look at [Makefile.linux](./uKernel.mk) for more
 information.
 
 ## Debugging
