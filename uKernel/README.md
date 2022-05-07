@@ -14,7 +14,8 @@ systems. It was a colaboration between:
 
 This project uses a modified version of the
 [Arduino-Makefile](https://github.com/sudar/Arduino-Makefile) project as the
-build system.
+build system. The files from that project (along with their modifications) are
+included in the [ardmk directory](./ardmk).
 
 ### Requirements
 
@@ -24,9 +25,8 @@ requirements are needed:
 - **avr-gcc** - compiler;
 - **avr-libc** - standard library;
 - **arduino** - arduino library;
-- **arduino-mk** - build system;
 - **binutils**;
-- **avrdude** - push code to the Arduino;
+- **avrdude** (optional) - push code to the Arduino;
 
 ### About Arduino IDE
 
@@ -43,23 +43,59 @@ isn't able to compile it, but we can still use things like the IDE's
 
 The build system needs the user to define some information about the system:
 
-- Location of the Arduino libs;
-- The board identification;
-- The port where it is connected.
+- Location of the Arduino directories (e.g. libs, boards.txt);
+- (optional) The port where the device is available (for uploading the code to
+  the device).
 
 For this purpose, some example Makefiles have been included: one for Arch Linux
 based systems, and another for Ubuntu based (more specifically,
 [WLS 2](https://docs.microsoft.com/en-us/windows/wsl/install)).
 
 A user wanting to compile this project, should copy one of this example files,
-and possibly adapt it to their system: you'll most likely only need to change
+and (if needed) adapt it to their system: you'll most likely only need to change
 the serial port where the arduino is connected.
 
-### Compiler flags
+### Conditional compilation regions
 
 There are some conditional compilation zones in the code that can be toggled
 with compiler flags. Have a look at [Makefile.linux](./uKernel.mk) for more
 information.
+
+#### -DDOTRACE
+
+The kernel will emit messages (through serial communication) when the code
+executes _main_ methods, for example, it will emit a message every time ISR,
+Yield, Block, Sleep are called.
+
+By default, this is only active when compiling for debug: `make DEBUG=1`.
+
+#### -DRUNTIMEASSERT
+
+The kernel will perform asserts during runtime about critical conditions, where
+failure is considered unrecoverable, for example:
+
+- Integrity of the tasks' stacks;
+- Success of memory allocation;
+- Out-of-bounds vector accesses.
+
+When any of these asserts fails, the code emits a message (through serial
+communication) about the error, including information about where in the code it
+happened (file, function, line), and goes into a _locked_ where no more task
+execution takes place.  
+When on this state, the device periodically blinks its **builtin LED** spelling
+out _SOS_ in morse code.
+
+This is enabled by default.
+
+#### -DDOCANARIES
+
+The kernel will emit code that reserves some bytes at the beggining and at the
+end of each task's stack, and fills them with predetermined values. The
+integrity of these values is checked everytime a task _yields_ (finishes
+execution for a period).
+
+Although not fool-proof, this can help detect situations where the chosen stack
+size for a task isn't enough.
 
 ## Debugging
 

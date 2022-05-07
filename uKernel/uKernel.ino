@@ -28,12 +28,10 @@ ISR(SCHEDULER_ISR) {
 void setup() {
   Sched_Init();
 
-#if defined(DOTRACE) || defined(RUNTIMEASSERT)
   Serial.begin(9600);
   while (!Serial) { // wait for serial port to connect
     ;
   }
-#endif
 
   assertCond(Sched_Add(task1) == 0, F("Failed to add task 1"));
   assertCond(Sched_Add(task2) == 0, F("Failed to add task 2"));
