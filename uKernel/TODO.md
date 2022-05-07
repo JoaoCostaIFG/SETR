@@ -2,12 +2,6 @@
 
 ## Must
 
-- Stuff para o readme:
-  - simavr
-  - gdb
-- Make:
-  - include Arduino.mk stuff no repo
-
 ## Likely
 
 - Sleep/Delay func
@@ -16,6 +10,8 @@
 
 - Teste de schedulability?
 - Preserve errno
+- Make:
+  - include Arduino.mk stuff no repo
 
 ## Done
 
@@ -28,3 +24,6 @@
 - WHERE TO VOLATILE?
 - Map
 - Vector
+- Stuff para o readme:
+  - simavr
+  - gdb

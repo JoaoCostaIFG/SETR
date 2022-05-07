@@ -60,3 +60,16 @@ the serial port where the arduino is connected.
 There are some conditional compilation zones in the code that can be toggled
 with compiler flags. Have a look at [Makefile.linux](./Makefile.linux) for more
 information.
+
+## Debugging
+
+For debugging purposes, the group made extensive use of
+[simavr](https://github.com/buserror/simavr) in conjunction with
+[avr-gdb](https://github.com/embecosm/avr-binutils-gdb).
+
+- The make target `simavr` builds the code with debug symbols and optimizations
+  turned off;
+- The make target `gdb` starts avr-gdb. The project includes a
+  [gdb init file](./gdbinit) which attempts to automatically connect to the
+  running sim avr instance (`target remote :1234`). This only works if you
+  allows project specific auto-loading init files for gdb.
