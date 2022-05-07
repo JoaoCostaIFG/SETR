@@ -1,10 +1,10 @@
-#ifndef REGS_H
-#define REGS_H
+#ifndef UKERNEL_REGS_H
+#define UKERNEL_REGS_H
 
 // Source: https://www.arduino.cc/reference/en/libraries/freertos/
 
-/* We require the address of the currStack variable, but don't want to know
-any details of its type. */
+// We require the address of the currStack variable, but don't want to know
+// any details of its type.
 typedef void stackPtr_t;
 extern volatile stackPtr_t *volatile currStack;
 
@@ -113,4 +113,4 @@ extern volatile stackPtr_t *volatile currStack;
                        "out    __SREG__, __tmp_reg__                   \n\t"   \
                        "pop    __tmp_reg__                             \n\t")
 
-#endif // REGS_H
+#endif // UKERNEL_REGS_H
