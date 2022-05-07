@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-#include "Mutex.h"
-#include "scheduler.h"
+#include "sched/Mutex.h"
+#include "sched/scheduler.h"
 
 Mutex::Mutex() { this->holder = nullptr; }
 

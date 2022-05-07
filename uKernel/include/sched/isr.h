@@ -1,5 +1,5 @@
-#ifndef UKERNEL_SCHEDULER_ISR_H
-#define UKERNEL_SCHEDULER_ISR_H
+#ifndef UKERNEL_ISR_H
+#define UKERNEL_ISR_H
 
 // timer 1
 #define SCHEDULER_ISR TIMER1_COMPA_vect
@@ -12,4 +12,4 @@
 // freq (s) = CMR / (clock / prescaler) = CMR / (16MHz / prescale).
 #define SCHEDULER_PRESCALER (1 << CS12) // 256 prescaler
 
-#endif // UKERNEL_SCHEDULER_ISR_H
+#endif // UKERNEL_ISR_H

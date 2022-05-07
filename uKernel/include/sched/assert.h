@@ -1,5 +1,5 @@
-#ifndef UKERNEL_SCHEDASSERT_H
-#define UKERNEL_SCHEDASSERT_H
+#ifndef UKERNEL_ASSERT_H
+#define UKERNEL_ASSERT_H
 
 #ifdef RUNTIMEASSERT
 
@@ -26,4 +26,4 @@ void assertFailed(const __FlashStringHelper *file, int line, const char *func,
 
 #endif // RUNTIMEASSERT
 
-#endif // UKERNEL_SCHEDASSERT_H
+#endif // UKERNEL_ASSERT_H

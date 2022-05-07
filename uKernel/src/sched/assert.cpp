@@ -3,8 +3,8 @@
 
 #ifdef RUNTIMEASSERT
 
-#include "schedassert.h"
-#include "scheduler.h"
+#include "sched/assert.h"
+#include "sched/scheduler.h"
 
 #define ON HIGH
 #define OFF LOW

@@ -1,7 +1,7 @@
 #ifndef UKERNEL_TASK_2
 #define UKERNEL_TASK_2
 
-#include "Mutex.h"
+#include "sched/Mutex.h"
 
 extern Mutex *mutex1;
 

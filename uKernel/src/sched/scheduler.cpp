@@ -1,11 +1,11 @@
 #include <Arduino.h>
 #include <limits.h>
 
-#include "Task.h"
+#include "sched/Task.h"
 #include "Vector.h"
-#include "context.h"
-#include "schedassert.h"
-#include "scheduler.h"
+#include "sched/context.h"
+#include "sched/assert.h"
+#include "sched/scheduler.h"
 
 #define MAXTIMEDIFF (UINT_MAX / 2)
 

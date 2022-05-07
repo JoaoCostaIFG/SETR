@@ -2,7 +2,15 @@
 #define UKERNEL_SCHEDULER_H
 
 #include "Task.h"
-#include "scheduler_isr.h"
+#include "isr.h"
+
+/**
+ * These are the 'public' functions of the Scheduler singleton.
+ *
+ */
+
+/**  The timer ISR needs to be naked. */
+ISR(SCHEDULER_ISR, ISR_NAKED) __attribute__ ((hot));
 
 /**
  * Add a task to the scheduler.
