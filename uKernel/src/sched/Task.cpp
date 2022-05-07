@@ -45,7 +45,7 @@ Task::Task(taskfunc_t run, void *params, unsigned int stackSize,
   this->stackAddr = this->botStackAddr; // start at the beginning of the stack
   this->initializeStack();
 
-  static_assert(sizeof(*this) == 26,
+  static_assert(sizeof(*this) == 28,
                 "The task's data is exceeding the calculated optimal size. Did "
                 "you add a new data member?");
 }

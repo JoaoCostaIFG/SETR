@@ -44,6 +44,8 @@ private:
 
   const static stack_t canary[];
 
+  unsigned int sleepTime;
+
   void inline push2stack(stack_t pushable) __attribute__((always_inline));
 
   /**
@@ -84,6 +86,11 @@ public:
       --this->timeDelay;
   }
 
+  void sleep(unsigned int sleepTime){
+      this->sleepTime = sleepTime;
+      this->setState(WAITING);
+  }
+
   void reset() { this->timeDelay = this->period - 1; }
 
   /*
@@ -102,6 +109,11 @@ public:
   void setState(state_t newState) { this->state = newState; }
 
   state_t getState() { return this->state; }
+
+  void tickSleep() {
+      --this->sleepTime;
+      if(this->sleepTime == 0) this->setState(READY);
+  }
 
   /*
    * See "Efficient EDF Implementation for Small Embedded System", by Giorgio

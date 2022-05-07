@@ -46,4 +46,9 @@ void Sched_Yield() __attribute__((hot, naked));
  */
 void Sched_Block() __attribute__((naked));
 
+/**
+ * Adds artificial delay to a task's execution
+ */
+void Sched_Sleep(unsigned int sleep) __attribute__((naked));
+
 #endif // UKERNEL_SCHEDULER_H

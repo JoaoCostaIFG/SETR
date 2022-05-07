@@ -153,6 +153,9 @@ static int Sched_Schedule() {
       }
       t->reset();
     }
+    if(t->getState() == WAITING){
+        t->tickSleep();
+    }
   }
 
   return readyCnt;
@@ -221,4 +224,23 @@ void Sched_Block() {
   RESTORE_CONTEXT(); // restore the execution context
 
   __asm__ __volatile__("ret");
+}
+
+static void Sched_SleepDispatch(unsigned int sleepTime){
+#ifdef DOTRACE
+    Serial.println("Sleep");
+#endif
+    currTask->sleep(sleepTime);
+    currTask = nullptr;
+    Sched_Dispatch();
+}
+
+void Sched_Sleep(unsigned int sleepTime) {
+    SAVE_CONTEXT(); // save the execution context
+
+    Sched_SleepDispatch(sleepTime);
+
+    RESTORE_CONTEXT(); // restore the execution context
+
+    __asm__ __volatile__("ret");
 }
