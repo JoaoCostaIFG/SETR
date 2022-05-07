@@ -5,6 +5,8 @@
 - Stuff para o readme:
   - simavr
   - gdb
+- Make:
+  - include Arduino.mk stuff no repo
 
 ## Likely
 
