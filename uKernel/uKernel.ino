@@ -10,7 +10,7 @@
 
 Mutex* mutex1 = new Mutex();
 
-static Task* task1 = new Task(&task1Func, nullptr, 200, 0, 0, 1);
+static Task* task1 = new Task(&task1Func, nullptr, 200, 1, 0, 1);
 static Task* task2 = new Task(&task2Func, nullptr, 200, 20, 0, 20);
 //static Task* task3 = new Task(&task3Func, (void*) 0, 128, 3, 0, 3);
 //static Task* task4 = new Task(&task4Func, (void*) 0, 43, 1, 0, 1);

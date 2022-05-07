@@ -1,9 +1,15 @@
 ARDMK_DIR = ./ardmk
 BOARD_TAG = uno
 
+STD 				= c
+STDVERSION	= 17
+
+CFLAGS_STD = -std=$(STD)$(STDVERSION) -flto -fno-fat-lto-objects
+CXXFLAGS_STD = -std=$(STD)++$(STDVERSION) -fno-threadsafe-statics -flto
+
 # if this build for debugging purposes =>
 # 	compiles without optimizations + with symbols + func call tracing
-DEBUG_FLAGS = -Os -ggdb3 -DDOTRACE
+DEBUG_FLAGS = -O0 -ggdb3 -DDOTRACE
 # ignore util/delay.h warning about disabling optimizations
 DEBUG_FLAGS += -Wno-cpp
 
