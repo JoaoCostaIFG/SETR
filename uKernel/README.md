@@ -13,21 +13,21 @@ systems. It was a colaboration between:
 ## Code functionalities
 
 Our kernel implementation allows for many functionalities such as:
-- **Mutexes**: The mutex implementation can be found [here](./src/sched/Mutex.cpp). These 
-mutexes have the same functionalities as normal C mutexes, 
-assuming the user is using the mutex type 
-"PTHREAD_MUTEX_ERRORCHECK".
-- **Earliest Deadline First With Priority Inheritance**: Taking advantage
- of the implemented mutexes, the kernel assigns priorities according 
- to EDF with priority inheritance. To keep the priority up-to-date, 
- an implementation of a map was made. This is used to map each 
- mutex used to the earliest deadline of any task that needs it, 
- facilitating the priority inheritance.
-- **Sleep**: When using the sleep function, the task is put in 
-a "WAITING" state, not being allowed to execute until the sleep is done.
-- **Assert**: In order to better debug the code and enforce 
-some conditions, the kernel supports assertions made by the user.
-- **Stack Canaries**: See below.
+
+- **Mutexes**: The mutex implementation can be found
+  [here](./src/sched/Mutex.cpp). These mutexes have the same functionalities as
+  normal C mutexes, assuming the user is using the mutex type
+  `PTHREAD_MUTEX_ERRORCHECK`.
+- **Earliest Deadline First With Priority Inheritance**: Taking advantage of the
+  implemented mutexes, the kernel assigns priorities according to EDF with
+  priority inheritance. To keep the priority up-to-date, an implementation of a
+  map was made. This is used to map each mutex used to the earliest deadline of
+  any task that needs it, facilitating the priority inheritance.
+- **Sleep**: When using the sleep function, the task is put in a "WAITING"
+  state, not being allowed to execute until the sleep is done.
+- **Assert**: In order to better debug the code and enforce some conditions, the
+  kernel supports assertions made by the user.
+- **Stack Canaries**: See [below](#-DDOCANARIES).
 
 ## Building and Uploading
 

@@ -4,14 +4,10 @@
 
 ## Likely
 
-
-
 ## Maybe
 
 - Teste de schedulability?
 - Preserve errno
-- Make:
-  - include Arduino.mk stuff no repo
 
 ## Done
 
@@ -28,3 +24,5 @@
   - simavr
   - gdb
 - Sleep/Delay func
+- Make:
+  - include Arduino.mk stuff no repo
