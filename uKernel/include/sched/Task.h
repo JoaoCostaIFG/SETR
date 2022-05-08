@@ -5,7 +5,7 @@
 
 #include "Map.h"
 
-typedef byte stack_t;
+typedef unsigned char stack_t;
 
 typedef void (* taskfunc_t)(void*);
 
