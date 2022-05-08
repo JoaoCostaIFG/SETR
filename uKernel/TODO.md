@@ -9,6 +9,7 @@
 - Teste de schedulability;
 - Preserve errno (save na task);
 - Idle task defined as weak.
+- fork
 
 ## Done
 
