@@ -48,7 +48,7 @@ static void Sched_SetupTimer() {
   SCHEDULER_TCCRXB = 0;
   SCHEDULER_TCNT = 0;
   // freq (s) = CMR / (clock / prescaler) = CMR / (16MHz / prescale).
-  SCHEDULER_OCRXA = 31250;                 // Compare Match Register (CMR)
+  SCHEDULER_OCRXA = SCHEDULER_CMR;                 // Compare Match Register (CMR)
   SCHEDULER_TCCRXB |= SCHEDULER_PRESCALER; // 256 prescaler
   SCHEDULER_TCCRXB |= (1 << WGM12);        // CTC mode
   SCHEDULER_TIMSK |= (1 << OCIE1A);        // enable timer compare interrupt
