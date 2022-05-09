@@ -11,6 +11,7 @@
 
 void idleTaskFunc(void* arg);
 
+static bool preempt = true;
 // tasks
 static Vector<Task*> tasks; // lower index => higher task priority
 Task* volatile currTask;
@@ -29,6 +30,14 @@ void idleTaskFunc(void* arg) {
     // delay(1000);
     ;
   }
+}
+
+void Sched_Preempt() {
+  preempt = true;
+}
+
+void Sched_NoPreempt() {
+  preempt = false;
 }
 
 int Sched_Add(Task* t) {
@@ -153,12 +162,13 @@ static int Sched_Schedule() {
       }
       t->reset();
     }
-    if(t->getState() == WAITING){
-        t->tickSleep();
+    if (t->getState() == WAITING) {
+      t->tickSleep();
     }
   }
 
-  return readyCnt;
+  // if preemption is disabled, return "no tasks to switch to"
+  return readyCnt * (int)preempt;
 }
 
 void Sched_CtxSwitch() {
@@ -226,21 +236,21 @@ void Sched_Block() {
   __asm__ __volatile__("ret");
 }
 
-static void Sched_SleepDispatch(unsigned int sleepTime){
+static void Sched_SleepDispatch(unsigned int sleepTime) {
 #ifdef DOTRACE
-    Serial.println("Sleep");
+  Serial.println("Sleep");
 #endif
-    currTask->sleep(sleepTime);
-    currTask = nullptr;
-    Sched_Dispatch();
+  currTask->sleep(sleepTime);
+  currTask = nullptr;
+  Sched_Dispatch();
 }
 
 void Sched_Sleep(unsigned int sleepTime) {
-    SAVE_CONTEXT(); // save the execution context
+  SAVE_CONTEXT(); // save the execution context
 
-    Sched_SleepDispatch(sleepTime);
+  Sched_SleepDispatch(sleepTime);
 
-    RESTORE_CONTEXT(); // restore the execution context
+  RESTORE_CONTEXT(); // restore the execution context
 
-    __asm__ __volatile__("ret");
+  __asm__ __volatile__("ret");
 }

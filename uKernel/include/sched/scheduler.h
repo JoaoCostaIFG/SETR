@@ -13,6 +13,20 @@
 ISR(SCHEDULER_ISR, ISR_NAKED) __attribute__ ((hot));
 
 /**
+ * Enable preemption.
+ * Global mechanism for critical region protection. That should be more efficient
+ * than disabling interrupts.
+ */
+void Sched_Preempt();
+
+/**
+ * Disable preemption.
+ * Global mechanism for critical region protection. That should be more efficient
+ * than disabling interrupts.
+ */
+void Sched_NoPreempt();
+
+/**
  * Add a task to the scheduler.
  * Returns 0 on success (task is valid). 1, otherwise.
  */

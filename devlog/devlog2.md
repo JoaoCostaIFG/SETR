@@ -85,7 +85,7 @@ we'll just assume it is always big enough for our needs.
 typedef unsigned char byte;
 
 class Task {
-  (void*) taskFunc(void *);   // task's code
+  void (* taskFunc)(void *);   // task's code
   const unsigned int period;  // task's period
   unsigned int delay;         // time left until next activationthe
   byte stack[BIG_ENOGH];      // task's stack

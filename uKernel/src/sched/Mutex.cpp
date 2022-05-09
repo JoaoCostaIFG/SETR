@@ -6,16 +6,20 @@
 Mutex::Mutex() { this->holder = nullptr; }
 
 int Mutex::lock() {
-  noInterrupts();
+  //noInterrupts();
+  Sched_NoPreempt();
+
   if (!this->isLocked()) {
     this->holder = currTask;
-    interrupts();
+    //interrupts();
+    Sched_Preempt();
     return 0;
   }
 
   // current owner can't lock same mutex again - error
   if (this->holder == currTask) {
-    interrupts();
+    //interrupts();
+    Sched_Preempt();
     return 1;
   }
 
@@ -24,7 +28,8 @@ int Mutex::lock() {
   // blocking task inherits priority of the blocked task
   this->holder->inheritPrio((size_t)this, currTask->getDeadline());
 
-  interrupts();
+  //interrupts();
+  Sched_Preempt();
 
   Sched_Block();
 
@@ -33,7 +38,8 @@ int Mutex::lock() {
 }
 
 int Mutex::unlock() {
-  noInterrupts();
+  //noInterrupts();
+  Sched_NoPreempt();
 
   int ret = 1;
   if (this->isLocked() && this->holder == currTask) {
@@ -44,7 +50,8 @@ int Mutex::unlock() {
     readyPretenders();
   }
 
-  interrupts();
+  //interrupts();
+  Sched_Preempt();
 
   return ret;
 }
