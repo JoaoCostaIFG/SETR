@@ -323,4 +323,211 @@ asm volatile (                        \
 ### Program counter
 
 When an interrupt occurs, the program counter (`PC`) is automatically placed on
-the stack.
+the stack. This is the same thing that happens when we call a function. This
+leads to the following stack state upon context saving:
+
+```txt
+|      SPH       |
+|----------------|
+|      SPL       |
+|----------------|
+|    R1 - R31    |
+|----------------|
+|      SREG      |
+|----------------|
+|       R0       |
+|----------------|
+|       PC       | <-- Program Counter is pushed before the SAVE_CONTEXT macro
+|----------------|
+| Stack contents |
+|----------------|
+```
+
+After the RESTORE_CONTEXT macro, the `PC` is at the top of the stack. When the
+code reaches the next `RET`/`RETI` instruction, it will pop the PC from the
+stack and continue executing the pointed-to instruction.
+
+## Initializing the stack
+
+With the ideas from the previous chapter, we know how to save and restore the
+context of a task on its own stack: we just need to change the value of
+`currStack` to the one corresponding to the task that should execute right now.
+There are only two questions now:
+
+- Choosing the size of a task's stack;
+- What should be the initial state of the task;
+
+### Choosing the size of a task's stack
+
+To do this, we can analise the task's code and calculate the fize for a given
+system, or determine the size experimentally.
+
+Analising the code can be interesting. In fact, we did that for our first task
+and came close to the _real_ value. The problem is that it is a somewhat time
+consuming process and small changes in a task's code can become cumbersome,
+because of compiler optimizations. Still, if we don't care about finding the
+exact size, and fine with having just an upper-bound, we can naively add the
+size of all local variables. With this, we will focus on the experimental
+analysis.
+
+Some people suggest analising some of GCC's output, namely the output produced
+by `-fdump-tree-all`, and `-fstack-usage`. We decided to use a more
+_brute-force_ approach.
+
+#### Canaries
+
+We add a few bytes of a compile-time known value to the beggining and the end of
+a stack. These are useful for run-time assertions that the stack hasn't been
+_corrupted_: we didn't try to write more than the maximum stack size.
+
+---
+
+We use the canaries described above to find the minimum size needed for a stack.
+We use a binary search where we start with upper-bound described previously (sum
+all needed local variables' sizes) and start lowering the stack size
+iteratively. When leave the task running for a while, checking if the
+**canaries** remain intact.
+
+With this, we eventually reach the minimum stack size (with reasonable
+confidence). This method probably doesn't very well for task's that have many
+branching paths, because it is hard to test all paths.
+
+**Note:** the canaries and the context saving operation add a little more
+spacially overhead to the task's stack. The stack size that the user passes to
+the Task constructor doesn't need to consider this (the constructor adds this
+size automatically). As of writting, the canaries add 6 bytes, and the context
+switching adds 34 bytes (32 general purpose registers + the status register +
+the program counter).
+
+### What should be the initial state of the task?
+
+When we create a task, we also need to initialize its stack. The first time the
+task _starts_ executing, it will be because of a RESTORE_CONTEXT. This means
+that the initial state of the stack should be match the state that would happen
+if we preempted the task just as it was about to start executing: context saved
+when the next instruction to execute would be the first instruction of the task.
+
+To do this, we just need to mimic the behaviour of SAVE_CONTEXT. Bellow is an
+adaptation of the code we use to do this:
+
+```cpp
+void inline Task::push2stack(stack_t pushable) {
+  *this->stackAddr = pushable;
+  // the stack grows backwards in Arduino UNO
+  this->stackAddr--;
+}
+
+void Task::initializeStack() {
+  // this->stackAddr starts at the beginning of the stack
+
+  // save task code (PC) at the bottom of the stack
+  auto runAddr = (POINTER_SIZE_TYPE) this->run;
+  this->push2stack((stack_t) (runAddr & (POINTER_SIZE_TYPE) 0x00ff));
+  runAddr >>= 8;
+  this->push2stack((stack_t) (runAddr & (POINTER_SIZE_TYPE) 0x00ff));
+
+  this->push2stack((stack_t) 0x00); /* R0 */
+  this->push2stack((stack_t) 0x80); /* SREG */
+  this->push2stack((stack_t) 0x00); /* R1 - compiler expects it to be 0 */
+  // debug values
+  this->push2stack((stack_t) 0x02); /* R2 */
+  this->push2stack((stack_t) 0x03); /* R3 */
+  this->push2stack((stack_t) 0x04); /* R4 */
+  this->push2stack((stack_t) 0x05); /* R5 */
+  this->push2stack((stack_t) 0x06); /* R6 */
+  this->push2stack((stack_t) 0x07); /* R7 */
+  this->push2stack((stack_t) 0x08); /* R8 */
+  this->push2stack((stack_t) 0x09); /* R9 */
+  this->push2stack((stack_t) 0x10); /* R10 */
+  this->push2stack((stack_t) 0x11); /* R11 */
+  this->push2stack((stack_t) 0x12); /* R12 */
+  this->push2stack((stack_t) 0x13); /* R13 */
+  this->push2stack((stack_t) 0x14); /* R14 */
+  this->push2stack((stack_t) 0x15); /* R15 */
+  this->push2stack((stack_t) 0x16); /* R16 */
+  this->push2stack((stack_t) 0x17); /* R17 */
+  this->push2stack((stack_t) 0x18); /* R18 */
+  this->push2stack((stack_t) 0x19); /* R19 */
+  this->push2stack((stack_t) 0x20); /* R20 */
+  this->push2stack((stack_t) 0x21); /* R21 */
+  this->push2stack((stack_t) 0x22); /* R22 */
+  this->push2stack((stack_t) 0x23); /* R23 */
+
+  // place the parameter on the stack in the expected location
+  auto paramAddr = (POINTER_SIZE_TYPE) this->params;
+  this->push2stack((stack_t) (paramAddr & (POINTER_SIZE_TYPE) 0x00ff));
+  paramAddr >>= 8;
+  this->push2stack((stack_t) (paramAddr & (POINTER_SIZE_TYPE) 0x00ff));
+
+  // more debug values on R26-R31
+  this->push2stack((stack_t) 0x26); /* R26 */
+  this->push2stack((stack_t) 0x27); /* R27 */
+  this->push2stack((stack_t) 0x28); /* R28 */
+  this->push2stack((stack_t) 0x29); /* R29 */
+  this->push2stack((stack_t) 0x30); /* R30 */
+  this->push2stack((stack_t) 0x31); /* R31 */
+}
+```
+
+- In Arduino UNO, the pointer size is 16-bit, so we define `POINTER_SIZE_TYPE`
+  as `uint16_t`;
+- The type `stack_t` represents a byte using `unsigned char`;
+- I excluded the code that sets the canaries as it is optional;
+- Registers R24 and R25 contain the argument (`void *`) passed to the task;
+- Most registers don't have a _meaningful_ value at the start of the task, so we
+  fill them with debug values (values that are easily identifiable on a
+  debugger);
+- In Arduino UNO, the stack grows backwards: from the end of the stack array
+  (high addresses) to the beggining of the array (low addresses);
+- The `PC` is stored at the bottom of the stack and contains the address of the
+  task's function: adress of the first instruction.
+
+## Task yielding
+
+When a task finishes an activation (executes all work for the current period),
+it needs to wait until the next activation to execute again. In the previous
+chapter, the tasks returned after each activation, thus signaling the kernel
+about the end of the activation. Since our task functions now contain a loop, we
+need a new way to signal the kernel to handle this. We saw 2 possible
+implementations:
+
+- The task would sleep for the duration until the beggining of the next period:
+  - This would be difficult to do and would require more code from the
+    programmer's side, so we decided to avoid it.
+- The task calls a method (`yield`) to signal the kernel that it is done
+  executing.
+
+We went with the second option, because it is simpler to implement, and also to
+use by the programmer.
+
+Given the ideas on previous chapters, _yielding_ is fairly straight forward: the
+task calls a method that:
+
+- Saves its context;
+- Sets it as _not ready for execution_;
+- Selects the next task to run: new highest priority task;
+- Restores the context to the new task.
+
+### Idle task
+
+There may be CPU idle periods during execution. This is problematic, because a
+task that wants to yield, would have to task to yield to. In order to deal with
+this edge-case without implementing more code, we decided to implement a special
+task (idle task). This task is setup so it is **always ready** (never yields),
+and the **lowest priority** task of all the ready tasks.
+
+With this, whenever we reach a CPU idle period, this is the task that runs. This
+model resembles a **background execution server**, that is something that we
+might talk about if we ever discuss aperiodic tasks.
+
+## Conclusion
+
+In this chapter, we saw how we can save and restore the execution context of our
+tasks. This allows use to have a single function for each task, that is only
+_called_ once (similar to posix threads). In future chapters, we will use this
+to implement _blocking_, and _sleeping_ of tasks.
+
+In the next chapter, we will look into dynamic priorities for tasks, and
+implement the **Earliest Dealine First (EDF)** algorithm.
+
+Stay safe :P
