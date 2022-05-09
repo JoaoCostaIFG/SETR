@@ -18,12 +18,12 @@ void assertFailed(const __FlashStringHelper *const file, const int line,
 
   // communicate the error
   Serial.print(file);
-  Serial.print(":");
-  Serial.print(line);
-  Serial.print(" ");
+  Serial.print(F(":"));
+  //Serial.print(line); // this sometimes causes a gcc bug
+  Serial.print(F(" "));
   Serial.print(func);
-  Serial.println("():");
-  Serial.print("Assert failed: ");
+  Serial.println(F("():"));
+  Serial.print(F("Assert failed: "));
   Serial.println(msg);
 
   // blink SOS in morse-code ad infinitum
