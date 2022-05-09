@@ -1,7 +1,6 @@
-#include <Arduino.h>
-#include <util/delay.h>
-
 #ifdef RUNTIMEASSERT
+
+#include <util/delay.h>
 
 #include "sched/assert.h"
 #include "sched/scheduler.h"
