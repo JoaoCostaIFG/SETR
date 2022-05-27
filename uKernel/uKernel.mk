@@ -1,8 +1,8 @@
 ARDMK_DIR = ./ardmk
 BOARD_TAG = uno
 
-STD 				= c
-STDVERSION	= 17
+STD 				= gnu
+STDVERSION	= 11
 
 CFLAGS_STD = -std=$(STD)$(STDVERSION) -flto -fno-fat-lto-objects
 CXXFLAGS_STD = -std=$(STD)++$(STDVERSION) -fno-threadsafe-statics -flto
