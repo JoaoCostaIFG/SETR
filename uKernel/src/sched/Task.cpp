@@ -10,9 +10,11 @@
 #define BYTE_ALIGNMENT 1
 #define BYTE_ALIGNMENT_MASK 0x0000
 
+#ifdef DOCANARIES
 #define CANARY_SIZE 3
 
 const stack_t Task::canary[CANARY_SIZE] = {0x11, 0x22, 0x33};
+#endif
 
 Task::Task(taskfunc_t run, void* params, unsigned int stackSize,
            unsigned int period, unsigned int timeDelay, unsigned int deadline)

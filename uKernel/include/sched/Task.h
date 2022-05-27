@@ -41,7 +41,9 @@ private:
   unsigned int deadline;
   MapType inheritedPriorities;
 
+#ifdef DOCANARIES
   const static stack_t canary[];
+#endif
 
   unsigned int sleepTime;
 

@@ -13,6 +13,10 @@ DEBUG_FLAGS = -O0 -ggdb3 -DDOTRACE
 # ignore util/delay.h warning about disabling optimizations
 DEBUG_FLAGS += -Wno-cpp
 
+ifdef TRACE
+	CPPFLAGS += -DDOTRACE
+endif
+
 # do runtime asserts
 CPPFLAGS += -DRUNTIMEASSERT
 
