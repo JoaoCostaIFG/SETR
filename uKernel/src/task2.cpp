@@ -10,19 +10,10 @@
 
 void task2Func(void *arg) {
   // set pin as output
-  pinMode(LEDPIN, OUTPUT);
-  digitalWrite(LEDPIN, ON);
-
-  pinMode(BUTTON, INPUT);
-
   while (true) {
 #ifdef DOTRACE
-    Serial.println("In task2");
+    //Serial.println("\nIn task2");
 #endif
-    mutex1->lock();
-    digitalWrite(LEDPIN, !digitalRead(LEDPIN));
-    mutex1->unlock();
-
     Sched_Yield(); // yield
   }
 }

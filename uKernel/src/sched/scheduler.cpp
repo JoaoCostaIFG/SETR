@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include <limits.h>
+#include <string.h>
+#include <stdio.h>
 
 #include "sched/Task.h"
 #include "Vector.h"
@@ -168,16 +170,24 @@ static int Sched_Schedule() {
   }
 
   // if preemption is disabled, return "no tasks to switch to"
-  return readyCnt * (int)preempt;
+  return readyCnt * (int) preempt;
 }
+
+char str[25];
 
 void Sched_CtxSwitch() {
   SAVE_CONTEXT(); // save the execution context
+
+  sprintf(str, "%ld", micros());
+  Serial.println(str);
 
   // sched + dispatch
   if (Sched_Schedule() > 1) {
     Sched_Dispatch();
   }
+
+  sprintf(str, "%ld", micros());
+  Serial.println(str);
 
   RESTORE_CONTEXT(); // restore the execution context
 
