@@ -17,7 +17,7 @@ static Task* task2 = new Task(&task2Func, nullptr, 200, 375, 0);
 
 ISR(SCHEDULER_ISR) {
 #ifdef DOTRACE
-  Serial.println("ISR");
+  //Serial.println("ISR");
 #endif
   Sched_CtxSwitch();
 
