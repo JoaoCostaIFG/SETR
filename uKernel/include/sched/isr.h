@@ -9,7 +9,7 @@
 #define SCHEDULER_TCNT        TCNT1  // actual timer value
 #define SCHEDULER_OCRXA       OCR1A // Output Compare Register
 // freq (s) = CMR / (clock / prescaler) = CMR / (16MHz / prescale).
-#define SCHEDULER_CMR         31250
+#define SCHEDULER_CMR         250
 #define SCHEDULER_PRESCALER   (1 << CS12) // 256 prescaler
 
 #endif // UKERNEL_ISR_H
