@@ -90,7 +90,7 @@ By default, this is only active when compiling for debug: `make DEBUG=1`.
 
 #### -DRUNTIMEASSERT
 
-The kernel will perform asserts during runtime about critical conditions, where
+The kernel will perform asserts during run-time about critical conditions, where
 failure is considered unrecoverable, for example:
 
 - Integrity of the tasks' stacks;
@@ -108,9 +108,9 @@ This is enabled by default.
 
 #### -DDOCANARIES
 
-The kernel will emit code that reserves some bytes at the beggining and at the
+The kernel will emit code that reserves some bytes at the beginning and at the
 end of each task's stack, and fills them with predetermined values. The
-integrity of these values is checked everytime a task _yields_ (finishes
+integrity of these values is checked every time a task _yields_ (finishes
 execution for a period).
 
 Although not fool-proof, this can help detect situations where the chosen stack
