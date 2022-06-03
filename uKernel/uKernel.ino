@@ -11,6 +11,8 @@
 // Mutex* mutex1 = new Mutex();
 
 static Task* task1 = new Task(&task1Func, nullptr, 200, 125, 0);
+static Task* task1 = new Task(&task1Func, nullptr, 200, 125, 0);
+static Task* task2 = new Task(&task2Func, nullptr, 200, 125, 0);
 
 ISR(SCHEDULER_ISR) {
 #ifdef DOTRACE
@@ -31,6 +33,7 @@ void setup() {
   }
 
   assertCond(Sched_Add(task1) == 0, F("Failed to add task 1"));
+  assertCond(Sched_Add(task2) == 0, F("Failed to add task 2"));
 
   Sched_Start();
 

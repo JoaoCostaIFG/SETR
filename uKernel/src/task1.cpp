@@ -9,8 +9,8 @@
 
 void task1Func(void *arg) {
   // set pin as output
-  //pinMode(LEDPIN, OUTPUT);
-  //digitalWrite(LEDPIN, ON);
+  pinMode(LEDPIN, OUTPUT);
+  digitalWrite(LEDPIN, ON);
 
   while (true) {
 #ifdef DOTRACE
@@ -18,7 +18,7 @@ void task1Func(void *arg) {
 #endif
 
     // mutex1->lock();
-    //digitalWrite(LEDPIN, !digitalRead(LEDPIN));
+    digitalWrite(LEDPIN, !digitalRead(LEDPIN));
     // mutex1->unlock();
     Sched_Yield(); // yield
   }
