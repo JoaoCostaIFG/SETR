@@ -11,7 +11,6 @@
 // Mutex* mutex1 = new Mutex();
 
 static Task* task1 = new Task(&task1Func, nullptr, 200, 125, 0);
-static Task* task1 = new Task(&task1Func, nullptr, 200, 125, 0);
 static Task* task2 = new Task(&task2Func, nullptr, 200, 125, 0);
 
 ISR(SCHEDULER_ISR) {
@@ -38,6 +37,7 @@ void setup() {
   Sched_Start();
 
   free(task1);
+  free(task2);
 
   // free(mutex1);
 }
