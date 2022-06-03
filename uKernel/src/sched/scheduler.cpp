@@ -171,36 +171,12 @@ static int Sched_Schedule() {
   return readyCnt * (int)preempt;
 }
 
-#include <string.h>
-#include <stdio.h>
-
-#define padoru 40
-unsigned long arr[padoru];
-char str[20];
-int bazinga = 0;
-int i = 0;
-
 void Sched_CtxSwitch() {
   SAVE_CONTEXT(); // save the execution context
-
-  if (bazinga < padoru) {
-    arr[bazinga++] = micros();
-  }
 
   // sched + dispatch
   if (Sched_Schedule() > 1) {
     Sched_Dispatch();
-  }
-
-  if (bazinga < padoru) {
-    arr[bazinga++] = micros();
-  }
-
-  if (bazinga == padoru) {
-    sprintf(str, "%lu", arr[i++]);
-    Serial.println(str);
-    if (i == padoru)
-      ++bazinga;
   }
 
   RESTORE_CONTEXT(); // restore the execution context
@@ -228,11 +204,35 @@ static void Sched_YieldDispatch() {
   Sched_Dispatch();
 }
 
+#include <string.h>
+#include <stdio.h>
+
+#define padoru 20
+unsigned long arr[padoru];
+char str[20];
+int bazinga = 0;
+int i = 0;
+
 void Sched_Yield() {
   SAVE_CONTEXT(); // save the execution context
 
+  if (bazinga < padoru) {
+    arr[bazinga++] = micros();
+  }
+
   // dispatch
   Sched_YieldDispatch();
+
+  if (bazinga < padoru) {
+    arr[bazinga++] = micros();
+  }
+
+  if (bazinga == padoru) {
+    sprintf(str, "%lu", arr[i++]);
+    Serial.println(str);
+    if (i == padoru)
+      ++bazinga;
+  }
 
   RESTORE_CONTEXT(); // restore the execution context
 
