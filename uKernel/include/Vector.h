@@ -17,7 +17,7 @@ private:
   void increaseSize() {
     this->maxSize *= 2;
     this->data = (T *)realloc(this->data, this->maxSize * sizeof(T *));
-    assertCond(this->data != nullptr, F("Failed to re-allocate map memory"));
+    assertCond(this->data != nullptr, F("Failed to re-allocate vector memory"));
   }
 
 public:
@@ -25,7 +25,7 @@ public:
     this->maxSize = VECTOR_INIT_SIZE;
     this->size = 0;
     this->data = (T *)malloc(VECTOR_INIT_SIZE * sizeof(T *));
-    assertCond(this->data != nullptr, F("Failed to allocate map memory"));
+    assertCond(this->data != nullptr, F("Failed to allocate vector memory"));
   }
 
   ~Vector() { free(this->data); }
