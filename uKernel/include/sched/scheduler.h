@@ -61,8 +61,15 @@ void Sched_Yield() __attribute__((hot, naked));
 void Sched_Block() __attribute__((naked));
 
 /**
- * Adds artificial delay to a task's execution
+ * Adds artificial delay to a task's execution.
+ * @param sleepTime How many ticks to sleep for
  */
-void Sched_Sleep(unsigned int sleep) __attribute__((naked));
+void Sched_Sleep(unsigned int sleepTime) __attribute__((naked));
+
+/**
+ * A sleep doing busy-waiting. For demo purposes only.
+ * @param sleepTime How many ticks to sleep for
+ */
+void Sched_SleepBusyWait(unsigned int sleepTime);
 
 #endif // UKERNEL_SCHEDULER_H

@@ -143,9 +143,10 @@ bool Task::areCanariesIntact() const {
 unsigned int Task::getDeadline() const {
   unsigned int dl = this->deadline;
 
+  // find the lowest inherited deadline => highest prio
   for (size_t i = 0; i < this->inheritedPriorities.getSize(); ++i) {
     MapElement* elem = this->inheritedPriorities.at(i);
-    if (elem->value > dl)
+    if (elem->value < dl)
       dl = elem->value;
   }
 

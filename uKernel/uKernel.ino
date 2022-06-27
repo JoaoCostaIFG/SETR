@@ -12,7 +12,7 @@ Mutex* mutex1 = new Mutex();
 
 static Task* task1 = new Task(&task1Func, nullptr, 200, 1250, 0, 900);
 static Task* task2 = new Task(&task2Func, nullptr, 200, 1250, 0, 1000);
-static Task* task3 = new Task(&task3Func, nullptr, 200, 1250, 0, 5000);
+static Task* task3 = new Task(&task3Func, nullptr, 200, 5000, 0, 5000);
 
 ISR(SCHEDULER_ISR) {
 #ifdef DOTRACE

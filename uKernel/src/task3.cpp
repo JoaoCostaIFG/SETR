@@ -4,7 +4,6 @@
 #include "task3.h"
 
 #define LEDPIN 11
-#define BUTTON A1
 #define OFF HIGH
 #define ON LOW
 
@@ -12,7 +11,6 @@ void task3Func(void *arg) {
   // set pin as output
   pinMode(LEDPIN, OUTPUT);
   digitalWrite(LEDPIN, OFF);
-  pinMode(BUTTON, INPUT);
 
   while (true) {
     Serial.println("In task3");
@@ -20,7 +18,8 @@ void task3Func(void *arg) {
     mutex1->lock();
 
     digitalWrite(LEDPIN, ON);
-    while (digitalRead(BUTTON)) {}
+    //Sched_Sleep(1500);
+    Sched_SleepBusyWait(1500);
     digitalWrite(LEDPIN, OFF);
 
     mutex1->unlock();

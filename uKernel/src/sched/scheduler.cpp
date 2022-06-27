@@ -255,3 +255,11 @@ void Sched_Sleep(unsigned int sleepTime) {
 
   __asm__ __volatile__("ret");
 }
+
+void Sched_SleepBusyWait(unsigned int sleepTime) {
+  for (unsigned int sleptFor = 0; sleptFor < sleepTime; ++sleptFor) {
+    // TODO shouldn't be hard-coded
+    // the length of a tick in ms
+    delay(4);
+  }
+}
