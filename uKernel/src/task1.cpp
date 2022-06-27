@@ -4,22 +4,22 @@
 #include "task1.h"
 
 #define LEDPIN 13
-#define OFF LOW
-#define ON HIGH
+#define OFF HIGH
+#define ON LOW
 
 void task1Func(void *arg) {
   // set pin as output
   pinMode(LEDPIN, OUTPUT);
-  digitalWrite(LEDPIN, ON);
+  digitalWrite(LEDPIN, OFF);
 
   while (true) {
-#ifdef DOTRACE
     Serial.println("In task1");
-#endif
+    digitalWrite(LEDPIN, ON);
 
-    // mutex1->lock();
-    digitalWrite(LEDPIN, !digitalRead(LEDPIN));
-    // mutex1->unlock();
+    mutex1->lock();
+    digitalWrite(LEDPIN, OFF);
+    mutex1->unlock();
+
     Sched_Yield(); // yield
   }
 }
