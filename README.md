@@ -5,7 +5,7 @@ slides, and some questions from the previous years' exams.
 
 ## Project
 
-**Grade:** `--`
+**Grade:** 19
 
 ## Collaboration
 
