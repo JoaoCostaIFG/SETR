@@ -3,8 +3,8 @@
 This is a real-time micro-kernel for the
 [Arduino UNO](https://www.arduino.cc/en/Main/arduinoBoardUno).
 
-This project was developed for an university curricular unit about real-time
-systems. It was a colaboration between:
+This project was developed for a university curricular unit about real-time
+systems. It was a collaboration between:
 
 - [Davide Castro](https://github.com/davide-castro20);
 - [Henrique Ribeiro](https://github.com/TheZambi);
